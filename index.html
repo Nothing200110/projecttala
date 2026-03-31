@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Little Space For You</title>
+  <style>
+    :root{
+      --green-1:#f4fff4;
+      --green-2:#e4f7e4;
+      --green-3:#cdeccc;
+      --green-4:#9fd39f;
+      --green-5:#6aae6a;
+      --green-6:#3d7f3d;
+      --white:#ffffff;
+      --shadow:0 10px 30px rgba(61,127,61,0.18);
+      --radius:24px;
+      --paper-radius:20px;
+      --speed:0.45s;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html,body{
+      width:100%;
+      min-height:100%;
+      font-family:"Courier New", Courier, monospace;
+      font-weight:700;
+      background:
+        radial-gradient(circle at top, #ffffff 0%, #f5fff5 35%, #eaf9ea 100%);
+      color:var(--green-6);
+      overflow-x:hidden;
+    }
+
+    body{
+      position:relative;
+    }
+
+    .app{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .screen{
+      position:absolute;
+      inset:0;
+      width:100%;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity var(--speed) ease, transform var(--speed) ease, visibility var(--speed);
+      transform:translateY(20px);
+    }
+
+    .screen.active{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+      transform:translateY(0);
+      z-index:2;
+    }
+
+    .container{
+      width:min(100%, 1100px);
+      margin:auto;
+      text-align:center;
+    }
+
+    .card{
+      background:rgba(255,255,255,0.9);
+      border:3px solid var(--green-3);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:32px 24px;
+      backdrop-filter:blur(6px);
+    }
+
+    h1,h2,h3{
+      line-height:1.3;
+    }
+
+    .title{
+      font-size:clamp(1.6rem, 3vw, 2.5rem);
+      margin-bottom:14px;
+    }
+
+    .subtitle{
+      font-size:clamp(0.95rem, 2vw, 1.1rem);
+      color:var(--green-6);
+      opacity:0.9;
+      line-height:1.7;
+      max-width:700px;
+      margin:0 auto 24px;
+    }
+
+    .btn-row{
+      display:flex;
+      gap:16px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      position:relative;
+      min-height:130px;
+      margin-top:24px;
+    }
+
+    .btn{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      background:linear-gradient(180deg,var(--green-4),var(--green-5));
+      color:white;
+      padding:14px 28px;
+      border-radius:18px;
+      font-family:inherit;
+      font-size:1rem;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(61,127,61,0.2);
+      transition:transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease, background 0.25s ease;
+    }
+
+    .btn:hover{
+      transform:translateY(-3px) scale(1.03);
+      box-shadow:0 12px 22px rgba(61,127,61,0.25);
+    }
+
+    .btn:active{
+      transform:scale(0.97);
+    }
+
+    .btn.secondary{
+      background:linear-gradient(180deg,#d4efd4,#8bc98b);
+      color:var(--green-6);
+    }
+
+    .btn.done{
+      margin-top:22px;
+      min-width:120px;
+    }
+
+    .runaway-wrap{
+      position:relative;
+      width:100%;
+      max-width:540px;
+      height:110px;
+      margin:0 auto;
+    }
+
+    .yes-btn{
+      position:relative;
+      z-index:2;
+    }
+
+    .no-btn{
+      position:absolute;
+      left:320px;
+      top:10px;
+      z-index:3;
+      transition:left 0.15s ease, top 0.15s ease, transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .bounce{
+      animation:bounce 0.8s ease infinite alternate;
+    }
+
+    @keyframes bounce{
+      from{ transform:translateY(0); }
+      to{ transform:translateY(-6px); }
+    }
+
+    @keyframes fadeUp{
+      from{ opacity:0; transform:translateY(25px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    @keyframes floaty{
+      0%{ transform:translateY(0px) rotate(0deg); }
+      50%{ transform:translateY(-10px) rotate(-1deg); }
+      100%{ transform:translateY(0px) rotate(0deg); }
+    }
+
+    .floating{
+      animation:floaty 3s ease-in-out infinite;
+    }
+
+    /* Envelope */
+    .envelope-stage{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:24px;
+    }
+
+    .envelope-note{
+      font-size:1rem;
+      opacity:0.85;
+    }
+
+    .envelope{
+      position:relative;
+      width:min(90vw, 300px);
+      height:210px;
+      cursor:pointer;
+      filter:drop-shadow(0 14px 24px rgba(61,127,61,0.18));
+      transition:transform 0.35s ease;
+    }
+
+    .envelope:hover{
+      transform:scale(1.03);
+    }
+
+    .env-back{
+      position:absolute;
+      inset:0;
+      background:#ffffff;
+      border:3px solid var(--green-3);
+      border-radius:0 0 18px 18px;
+      overflow:hidden;
+    }
+
+    .env-front{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg,#f9fff9,#e8f7e8);
+      clip-path:polygon(0 0,100% 0,50% 62%);
+      border-top:3px solid var(--green-3);
+      z-index:3;
+    }
+
+    .env-bottom-left,
+    .env-bottom-right{
+      position:absolute;
+      bottom:0;
+      width:50%;
+      height:100%;
+      background:linear-gradient(135deg,#f4fff4,#e0f3e0);
+      z-index:2;
+      border-bottom:3px solid var(--green-3);
+    }
+
+    .env-bottom-left{
+      left:0;
+      clip-path:polygon(0 0,100% 100%,0 100%);
+      border-left:3px solid var(--green-3);
+      border-radius:0 0 0 18px;
+    }
+
+    .env-bottom-right{
+      right:0;
+      clip-path:polygon(100% 0,100% 100%,0 100%);
+      border-right:3px solid var(--green-3);
+      border-radius:0 0 18px 0;
+    }
+
+    .env-flap{
+      position:absolute;
+      top:-1px;
+      left:0;
+      width:100%;
+      height:56%;
+      background:linear-gradient(180deg,#ffffff,#ebf9eb);
+      clip-path:polygon(0 0,100% 0,50% 100%);
+      border:3px solid var(--green-3);
+      border-bottom:none;
+      transform-origin:top;
+      transition:transform 0.9s ease;
+      z-index:5;
+      border-radius:18px 18px 0 0;
+    }
+
+    .letter{
+      position:absolute;
+      left:50%;
+      top:18px;
+      transform:translateX(-50%) translateY(30px);
+      width:86%;
+      min-height:155px;
+      background:#ffffff;
+      border:3px solid var(--green-2);
+      border-radius:18px;
+      padding:18px;
+      color:var(--green-6);
+      line-height:1.7;
+      font-size:0.95rem;
+      text-align:left;
+      box-shadow:0 8px 16px rgba(61,127,61,0.12);
+      z-index:1;
+      opacity:0;
+      transition:transform 0.9s ease, opacity 0.9s ease;
+    }
+
+    .opened .env-flap{
+      transform:rotateX(180deg);
+    }
+
+    .opened .letter{
+      transform:translateX(-50%) translateY(-58px);
+      opacity:1;
+      z-index:4;
+    }
+
+    .fade-letter{
+      animation:letterFade 1.2s forwards;
+    }
+
+    @keyframes letterFade{
+      from{ opacity:1; transform:translateX(-50%) translateY(-58px); }
+      to{ opacity:0; transform:translateX(-50%) translateY(-88px); }
+    }
+
+    /* Menu */
+    .menu-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(220px, 1fr));
+      gap:18px;
+      margin-top:24px;
+    }
+
+    .menu-box{
+      background:linear-gradient(180deg,#ffffff,#eef9ee);
+      border:3px solid var(--green-3);
+      border-radius:24px;
+      min-height:135px;
+      padding:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      font-size:1rem;
+      line-height:1.6;
+    }
+
+    .menu-box:hover{
+      transform:translateY(-6px) rotate(-1deg);
+      border-color:var(--green-5);
+      box-shadow:0 16px 24px rgba(61,127,61,0.2);
+    }
+
+    /* Paper modal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(215,240,215,0.6);
+      backdrop-filter:blur(5px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity 0.35s ease, visibility 0.35s ease;
+      z-index:99;
+    }
+
+    .overlay.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+
+    .paper{
+      width:min(95vw, 860px);
+      max-height:90vh;
+      overflow:auto;
+      background:
+        linear-gradient(to bottom, #ffffff 0%, #fbfffb 100%);
+      border:3px solid var(--green-3);
+      border-radius:var(--paper-radius);
+      box-shadow:0 20px 40px rgba(61,127,61,0.22);
+      padding:30px 22px;
+      transform:scale(0.92) rotateX(8deg);
+      opacity:0;
+      transition:transform 0.35s ease, opacity 0.35s ease;
+      transform-origin:top center;
+      text-align:left;
+    }
+
+    .overlay.show .paper{
+      transform:scale(1) rotateX(0deg);
+      opacity:1;
+    }
+
+    .paper h2{
+      text-align:center;
+      margin-bottom:18px;
+      font-size:clamp(1.3rem, 2.5vw, 2rem);
+    }
+
+    .paper-content{
+      line-height:1.9;
+      font-size:0.98rem;
+      white-space:pre-line;
+    }
+
+    .paper-actions{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:24px;
+    }
+
+    .form-group{
+      margin-bottom:16px;
+    }
+
+    .form-group label{
+      display:block;
+      margin-bottom:8px;
+      line-height:1.6;
+    }
+
+    input[type="text"],
+    textarea{
+      width:100%;
+      border:2px solid var(--green-3);
+      border-radius:16px;
+      padding:14px 14px;
+      font-family:inherit;
+      font-size:0.96rem;
+      background:#fbfffb;
+      color:var(--green-6);
+      transition:border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus{
+      outline:none;
+      border-color:var(--green-5);
+      box-shadow:0 0 0 4px rgba(106,174,106,0.15);
+      transform:translateY(-1px);
+    }
+
+    textarea{
+      min-height:150px;
+      resize:vertical;
+    }
+
+    .tiny{
+      font-size:0.88rem;
+      opacity:0.8;
+      line-height:1.6;
+    }
+
+    .thought-list{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      margin-top:12px;
+    }
+
+    .thought-item{
+      background:#fbfffb;
+      border:2px dashed var(--green-3);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .thought-text{
+      margin-bottom:14px;
+      line-height:1.8;
+      word-break:break-word;
+    }
+
+    .comment-box{
+      margin-top:10px;
+    }
+
+    .item-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .empty-state{
+      text-align:center;
+      padding:24px 12px;
+      border:2px dashed var(--green-3);
+      border-radius:18px;
+      background:#fcfffc;
+      line-height:1.8;
+    }
+
+    .status-msg{
+      margin-top:12px;
+      text-align:center;
+      font-size:0.92rem;
+      min-height:22px;
+    }
+
+    .success{
+      color:#2f6d2f;
+    }
+
+    .error{
+      color:#7f3d3d;
+    }
+
+    @media (max-width: 900px){
+      .menu-grid{
+        grid-template-columns:repeat(2, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 640px){
+      .screen{
+        padding:18px;
+      }
+
+      .card{
+        padding:26px 18px;
+      }
+
+      .menu-grid{
+        grid-template-columns:1fr;
+      }
+
+      .runaway-wrap{
+        height:150px;
+      }
+
+      .no-btn{
+        left:160px;
+      }
+
+      .paper{
+        padding:24px 16px;
+      }
+
+      .btn{
+        width:100%;
+        max-width:280px;
+      }
+
+      .btn-row{
+        flex-direction:column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Landing -->
+    <section class="screen active" id="landingScreen">
+      <div class="container">
+        <div class="card floating">
+          <h1 class="title">Would you let me know you a little more?</h1>
+          <p class="subtitle">
+            I made something soft and sincere for you. I hope you’ll say yes.
+          </p>
+
+          <div class="runaway-wrap" id="runawayWrap">
+            <button class="btn yes-btn bounce" id="yesBtn">YES</button>
+            <button class="btn secondary no-btn" id="noBtn">NO</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Envelope -->
+    <section class="screen" id="envelopeScreen">
+      <div class="container">
+        <div class="card">
+          <div class="envelope-stage">
+            <h2 class="title">A little letter for you</h2>
+            <p class="envelope-note">Click the envelope to open it.</p>
+
+            <div class="envelope floating" id="envelope">
+              <div class="env-back"></div>
+              <div class="letter" id="letterText">
+                Hi, I made this little space because sometimes I find it hard to say things out loud.
+                So, I thought maybe… I could show you instead.
+              </div>
+              <div class="env-bottom-left"></div>
+              <div class="env-bottom-right"></div>
+              <div class="env-front"></div>
+              <div class="env-flap"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Menu -->
+    <section class="screen" id="menuScreen">
+      <div class="container">
+        <div class="card">
+          <h2 class="title">A Little Space For You</h2>
+          <p class="subtitle">
+            Pick any box you want. Everything here is made with care.
+          </p>
+
+          <div class="menu-grid">
+            <div class="menu-box" onclick="openModal('aboutMeModal')">📦 BOX 1<br>About Me</div>
+            <div class="menu-box" onclick="openModal('whyModal')">📦 BOX 2<br>Why I Made This</div>
+            <div class="menu-box" onclick="openModal('questionsModal')">📦 BOX 3<br>Questions for Her</div>
+            <div class="menu-box" onclick="openModal('messageModal')">📦 BOX 4<br>Message</div>
+            <div class="menu-box" onclick="openModal('sayModal')">📦 BOX 5<br>Things You Want to Say</div>
+            <div class="menu-box" onclick="openModal('thoughtsModal'); renderThoughts();">📦 BOX 6<br>Random Thoughts ni Tala</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- BOX 1 -->
+  <div class="overlay" id="aboutMeModal">
+    <div class="paper">
+      <h2>About Me</h2>
+      <div class="paper-content">Things about me:
+I’m a bit shy, especially when it comes to people I care about.
+I’m scared of dolls, lizards, snakes, and other reptiles—but I still love them; I’m just scared.
+I love animals.
+I love writing, but I feel like I’ve lost my touch.
+I’m an INFP.
+I love Garfield.
+I secretly love “Sana Maulit Muli” and other Disney songs.
+I also enjoy ballads with a theatrical touch (please don’t judge me).
+I want to learn how to play the piano.
+I love watching classic Filipino films.
+I first created an Instagram account when my ex told me that Sharon Cuneta replies to her fans’ messages.
+I’m a fan of Sharon Cuneta.
+I made this because I wanted to get to know you better.</div>
+      <div class="paper-actions">
+        <button class="btn done" onclick="closeModal('aboutMeModal')">DONE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOX 2 -->
+  <div class="overlay" id="whyModal">
+    <div class="paper">
+      <h2>Why I Made This</h2>
+      <div class="paper-content">To be loved is to be known.
+I don’t know if what I feel is something big yet, but I do know that I’d like to know you—and maybe let you know me too.
+That’s why I made this.</div>
+      <div class="paper-actions">
+        <button class="btn done" onclick="closeModal('whyModal')">DONE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOX 3 -->
+  <div class="overlay" id="questionsModal">
+    <div class="paper">
+      <h2>Questions for Her</h2>
+
+      <form id="questionsForm" action="https://formspree.io/f/xqegbegn" method="POST">
+        <div id="questionFields"></div>
+
+        <input type="hidden" name="_subject" value="Questions for Her Response" />
+        <input type="hidden" name="_captcha" value="false" />
+
+        <div class="paper-actions">
+          <button type="submit" class="btn">SAVE</button>
+          <button type="button" class="btn secondary" onclick="closeModal('questionsModal')">DONE</button>
+        </div>
+        <div class="status-msg" id="questionStatus"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- BOX 4 -->
+  <div class="overlay" id="messageModal">
+    <div class="paper">
+      <h2>Message</h2>
+      <div class="paper-content">No pressure at all.
+Even if nothing comes from this, I’m just glad I got to try.
+– MD</div>
+      <div class="paper-actions">
+        <button class="btn done" onclick="closeModal('messageModal')">DONE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOX 5 -->
+  <div class="overlay" id="sayModal">
+    <div class="paper">
+      <h2>Things You Want to Say</h2>
+
+      <div class="form-group">
+        <label for="thoughtInput">What's on your mind? I'm all ears</label>
+        <textarea id="thoughtInput" placeholder="What's on your mind? I'm all ears"></textarea>
+      </div>
+
+      <div class="paper-actions">
+        <button class="btn" onclick="saveThought()">SAVE</button>
+        <button class="btn secondary" onclick="closeModal('sayModal')">DONE</button>
+      </div>
+      <div class="status-msg" id="thoughtStatus"></div>
+      <p class="tiny" style="text-align:center; margin-top:10px;">
+        Saved locally using localStorage and shown in Box 6.
+      </p>
+    </div>
+  </div>
+
+  <!-- BOX 6 -->
+  <div class="overlay" id="thoughtsModal">
+    <div class="paper">
+      <h2>Random Thoughts ni Tala</h2>
+      <div id="thoughtsContainer" class="thought-list"></div>
+      <div class="paper-actions">
+        <button class="btn done" onclick="closeModal('thoughtsModal')">DONE</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const screens = {
+      landing: document.getElementById("landingScreen"),
+      envelope: document.getElementById("envelopeScreen"),
+      menu: document.getElementById("menuScreen")
+    };
+
+    function showScreen(screenEl){
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screenEl.classList.add("active");
+    }
+
+    // Landing page logic
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const runawayWrap = document.getElementById("runawayWrap");
+
+    yesBtn.addEventListener("click", () => {
+      showScreen(screens.envelope);
+    });
+
+    let noState = "normal";
+
+    function moveNoButton(e){
+      if (noState !== "normal") return;
+
+      const wrapRect = runawayWrap.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const btnCenterX = btnRect.left + btnRect.width / 2;
+      const btnCenterY = btnRect.top + btnRect.height / 2;
+
+      const dx = e.clientX - btnCenterX;
+      const dy = e.clientY - btnCenterY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 120){
+        const maxLeft = wrapRect.width - btnRect.width;
+        const maxTop = wrapRect.height - btnRect.height;
+
+        const newLeft = Math.max(0, Math.min(maxLeft, Math.random() * maxLeft));
+        const newTop = Math.max(0, Math.min(maxTop, Math.random() * maxTop));
+
+        noBtn.style.left = newLeft + "px";
+        noBtn.style.top = newTop + "px";
+      }
+    }
+
+    document.addEventListener("mousemove", moveNoButton);
+
+    noBtn.addEventListener("click", () => {
+      if (noState === "normal"){
+        noState = "sad";
+        noBtn.textContent = "😢";
+        noBtn.style.transform = "scale(1.15)";
+        setTimeout(() => {
+          noState = "turnedYes";
+          noBtn.textContent = "YES";
+          noBtn.classList.remove("secondary");
+          noBtn.classList.add("bounce");
+          noBtn.style.background = "linear-gradient(180deg,var(--green-4),var(--green-5))";
+          noBtn.style.color = "white";
+          noBtn.style.transform = "scale(1)";
+        }, 700);
+      } else if (noState === "turnedYes"){
+        showScreen(screens.envelope);
+      }
+    });
+
+    // Envelope page logic
+    const envelope = document.getElementById("envelope");
+    const letterText = document.getElementById("letterText");
+    let envelopeOpened = false;
+
+    envelope.addEventListener("click", () => {
+      if (envelopeOpened) return;
+      envelopeOpened = true;
+      envelope.classList.add("opened");
+
+      setTimeout(() => {
+        letterText.classList.add("fade-letter");
+      }, 2800);
+
+      setTimeout(() => {
+        showScreen(screens.menu);
+      }, 4300);
+    });
+
+    // Modal logic
+    function openModal(id){
+      document.getElementById(id).classList.add("show");
+    }
+
+    function closeModal(id){
+      document.getElementById(id).classList.remove("show");
+    }
+
+    document.querySelectorAll(".overlay").forEach(overlay => {
+      overlay.addEventListener("click", function(e){
+        if (e.target === overlay){
+          overlay.classList.remove("show");
+        }
+      });
+    });
+
+    // BOX 3 questions
+    const questions = [
+      "What makes you happy?",
+      "What kind of days do you enjoy the most?",
+      "What’s something you wish more people understood about you?",
+      "Do you have a favorite childhood memory?",
+      "What’s a weird food combo you secretly love?",
+      "What’s something that always makes you smile?",
+      "Do you prefer big adventures or quiet nights?",
+      "Is there something you’re really passionate about?",
+      "Do you have a dream project or goal you want to accomplish?",
+      "What’s one thing people usually misunderstand about you?",
+      "Have you ever had a moment that completely changed your perspective?",
+      "Do you have a favorite family tradition?",
+      "What's your political stance?"
+    ];
+
+    const questionFields = document.getElementById("questionFields");
+
+    questions.forEach((q, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "form-group";
+
+      const label = document.createElement("label");
+      label.setAttribute("for", "q" + (i + 1));
+      label.textContent = q;
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = "q" + (i + 1);
+      input.name = "Question " + (i + 1) + " - " + q;
+      input.placeholder = "please type your answer here";
+
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+      questionFields.appendChild(wrap);
+    });
+
+    const questionsForm = document.getElementById("questionsForm");
+    const questionStatus = document.getElementById("questionStatus");
+
+    questionsForm.addEventListener("submit", async function(e){
+      e.preventDefault();
+      questionStatus.textContent = "Sending your answers...";
+      questionStatus.className = "status-msg";
+
+      const formData = new FormData(questionsForm);
+
+      try{
+        const response = await fetch(questionsForm.action, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        if(response.ok){
+          questionStatus.textContent = "Answers saved and sent successfully.";
+          questionStatus.className = "status-msg success";
+          questionsForm.reset();
+        }else{
+          questionStatus.textContent = "Something went wrong while sending. Please try again.";
+          questionStatus.className = "status-msg error";
+        }
+      }catch(error){
+        questionStatus.textContent = "Unable to send right now. Please check your internet and try again.";
+        questionStatus.className = "status-msg error";
+      }
+    });
+
+    // BOX 5 and 6 localStorage logic
+    const thoughtInput = document.getElementById("thoughtInput");
+    const thoughtStatus = document.getElementById("thoughtStatus");
+    const thoughtsContainer = document.getElementById("thoughtsContainer");
+
+    function getThoughts(){
+      return JSON.parse(localStorage.getItem("talaThoughts") || "[]");
+    }
+
+    function setThoughts(thoughts){
+      localStorage.setItem("talaThoughts", JSON.stringify(thoughts));
+    }
+
+    function saveThought(){
+      const text = thoughtInput.value.trim();
+
+      if(!text){
+        thoughtStatus.textContent = "Please write something first.";
+        thoughtStatus.className = "status-msg error";
+        return;
+      }
+
+      const thoughts = getThoughts();
+      thoughts.unshift({
+        id: Date.now(),
+        text: text,
+        comment: ""
+      });
+
+      setThoughts(thoughts);
+      thoughtInput.value = "";
+      thoughtStatus.textContent = "Saved successfully. It was also sent to Box 6.";
+      thoughtStatus.className = "status-msg success";
+      renderThoughts();
+    }
+
+    function renderThoughts(){
+      const thoughts = getThoughts();
+      thoughtsContainer.innerHTML = "";
+
+      if(!thoughts.length){
+        thoughtsContainer.innerHTML = `
+          <div class="empty-state">
+            No saved thoughts yet.<br>
+            Go to <strong>Box 5</strong> and write something first.
+          </div>
+        `;
+        return;
+      }
+
+      thoughts.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "thought-item";
+
+        div.innerHTML = `
+          <div class="thought-text">${escapeHtml(item.text).replace(/\n/g, "<br>")}</div>
+          <div class="comment-box">
+            <label for="comment-${item.id}" style="display:block; margin-bottom:8px;">Comment section</label>
+            <textarea id="comment-${item.id}" placeholder="Write your comment here...">${escapeTextarea(item.comment || "")}</textarea>
+          </div>
+          <div class="item-actions">
+            <button class="btn" onclick="saveComment(${item.id})">SAVE COMMENT</button>
+            <button class="btn secondary" onclick="deleteThought(${item.id})">DELETE</button>
+          </div>
+        `;
+
+        thoughtsContainer.appendChild(div);
+      });
+    }
+
+    function saveComment(id){
+      const thoughts = getThoughts();
+      const item = thoughts.find(t => t.id === id);
+      const textarea = document.getElementById("comment-" + id);
+
+      if(item && textarea){
+        item.comment = textarea.value;
+        setThoughts(thoughts);
+        renderThoughts();
+      }
+    }
+
+    function deleteThought(id){
+      let thoughts = getThoughts();
+      thoughts = thoughts.filter(t => t.id !== id);
+      setThoughts(thoughts);
+      renderThoughts();
+    }
+
+    function escapeHtml(text){
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeTextarea(text){
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    renderThoughts();
+  </script>
+</body>
+</html>
