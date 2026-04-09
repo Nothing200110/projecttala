@@ -3,1008 +3,1874 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>A Little Space For You</title>
+  <title>Tala's Little Archive</title>
   <style>
-    :root{
-      --green-1:#f4fff4;
-      --green-2:#e4f7e4;
-      --green-3:#cdeccc;
-      --green-4:#9fd39f;
-      --green-5:#6aae6a;
-      --green-6:#3d7f3d;
-      --white:#ffffff;
-      --shadow:0 10px 30px rgba(61,127,61,0.18);
-      --radius:24px;
-      --paper-radius:20px;
-      --speed:0.45s;
+    :root {
+      --bg-1: #0f1713;
+      --bg-2: #18221d;
+      --panel: rgba(26, 34, 29, 0.92);
+      --panel-soft: rgba(36, 46, 40, 0.9);
+      --paper: #ece3c9;
+      --paper-2: #dfd2b1;
+      --ink: #243128;
+      --gold: #b89b62;
+      --green: #4f6f52;
+      --green-2: #6f8f72;
+      --green-3: #93b18a;
+      --line: rgba(184, 155, 98, 0.35);
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --transition: 0.28s ease;
     }
 
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    html,body{
-      width:100%;
-      min-height:100%;
-      font-family:"Courier New", Courier, monospace;
-      font-weight:700;
+    html, body {
+      min-height: 100%;
+      font-family: Georgia, "Times New Roman", serif;
       background:
-        radial-gradient(circle at top, #ffffff 0%, #f5fff5 35%, #eaf9ea 100%);
-      color:var(--green-6);
-      overflow-x:hidden;
+        radial-gradient(circle at top, rgba(111, 143, 114, 0.12), transparent 35%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color: #f8f3e8;
     }
 
-    body{
-      position:relative;
+    body {
+      overflow-x: hidden;
+      position: relative;
     }
 
-    .app{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
-
-    .screen{
-      position:absolute;
-      inset:0;
-      width:100%;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-      opacity:0;
-      visibility:hidden;
-      pointer-events:none;
-      transition:opacity var(--speed) ease, transform var(--speed) ease, visibility var(--speed);
-      transform:translateY(20px);
-    }
-
-    .screen.active{
-      opacity:1;
-      visibility:visible;
-      pointer-events:auto;
-      transform:translateY(0);
-      z-index:2;
-    }
-
-    .container{
-      width:min(100%, 1100px);
-      margin:auto;
-      text-align:center;
-    }
-
-    .card{
-      background:rgba(255,255,255,0.9);
-      border:3px solid var(--green-3);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:32px 24px;
-      backdrop-filter:blur(6px);
-    }
-
-    h1,h2,h3{
-      line-height:1.3;
-    }
-
-    .title{
-      font-size:clamp(1.6rem, 3vw, 2.5rem);
-      margin-bottom:14px;
-    }
-
-    .subtitle{
-      font-size:clamp(0.95rem, 2vw, 1.1rem);
-      color:var(--green-6);
-      opacity:0.9;
-      line-height:1.7;
-      max-width:700px;
-      margin:0 auto 24px;
-    }
-
-    .btn-row{
-      display:flex;
-      gap:16px;
-      justify-content:center;
-      align-items:center;
-      flex-wrap:wrap;
-      position:relative;
-      min-height:130px;
-      margin-top:24px;
-    }
-
-    .btn{
-      border:none;
-      outline:none;
-      cursor:pointer;
-      background:linear-gradient(180deg,var(--green-4),var(--green-5));
-      color:white;
-      padding:14px 28px;
-      border-radius:18px;
-      font-family:inherit;
-      font-size:1rem;
-      font-weight:700;
-      box-shadow:0 8px 18px rgba(61,127,61,0.2);
-      transition:transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease, background 0.25s ease;
-    }
-
-    .btn:hover{
-      transform:translateY(-3px) scale(1.03);
-      box-shadow:0 12px 22px rgba(61,127,61,0.25);
-    }
-
-    .btn:active{
-      transform:scale(0.97);
-    }
-
-    .btn.secondary{
-      background:linear-gradient(180deg,#d4efd4,#8bc98b);
-      color:var(--green-6);
-    }
-
-    .btn.done{
-      margin-top:22px;
-      min-width:120px;
-    }
-
-    .runaway-wrap{
-      position:relative;
-      width:100%;
-      max-width:540px;
-      height:110px;
-      margin:0 auto;
-    }
-
-    .yes-btn{
-      position:relative;
-      z-index:2;
-    }
-
-    .no-btn{
-      position:absolute;
-      left:320px;
-      top:10px;
-      z-index:3;
-      transition:left 0.15s ease, top 0.15s ease, transform 0.25s ease, opacity 0.25s ease;
-    }
-
-    .bounce{
-      animation:bounce 0.8s ease infinite alternate;
-    }
-
-    @keyframes bounce{
-      from{ transform:translateY(0); }
-      to{ transform:translateY(-6px); }
-    }
-
-    @keyframes fadeUp{
-      from{ opacity:0; transform:translateY(25px); }
-      to{ opacity:1; transform:translateY(0); }
-    }
-
-    @keyframes floaty{
-      0%{ transform:translateY(0px) rotate(0deg); }
-      50%{ transform:translateY(-10px) rotate(-1deg); }
-      100%{ transform:translateY(0px) rotate(0deg); }
-    }
-
-    .floating{
-      animation:floaty 3s ease-in-out infinite;
-    }
-
-    /* Envelope */
-    .envelope-stage{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:24px;
-    }
-
-    .envelope-note{
-      font-size:1rem;
-      opacity:0.85;
-    }
-
-    .envelope{
-      position:relative;
-      width:min(90vw, 300px);
-      height:210px;
-      cursor:pointer;
-      filter:drop-shadow(0 14px 24px rgba(61,127,61,0.18));
-      transition:transform 0.35s ease;
-    }
-
-    .envelope:hover{
-      transform:scale(1.03);
-    }
-
-    .env-back{
-      position:absolute;
-      inset:0;
-      background:#ffffff;
-      border:3px solid var(--green-3);
-      border-radius:0 0 18px 18px;
-      overflow:hidden;
-    }
-
-    .env-front{
-      position:absolute;
-      inset:0;
-      background:linear-gradient(135deg,#f9fff9,#e8f7e8);
-      clip-path:polygon(0 0,100% 0,50% 62%);
-      border-top:3px solid var(--green-3);
-      z-index:3;
-    }
-
-    .env-bottom-left,
-    .env-bottom-right{
-      position:absolute;
-      bottom:0;
-      width:50%;
-      height:100%;
-      background:linear-gradient(135deg,#f4fff4,#e0f3e0);
-      z-index:2;
-      border-bottom:3px solid var(--green-3);
-    }
-
-    .env-bottom-left{
-      left:0;
-      clip-path:polygon(0 0,100% 100%,0 100%);
-      border-left:3px solid var(--green-3);
-      border-radius:0 0 0 18px;
-    }
-
-    .env-bottom-right{
-      right:0;
-      clip-path:polygon(100% 0,100% 100%,0 100%);
-      border-right:3px solid var(--green-3);
-      border-radius:0 0 18px 0;
-    }
-
-    .env-flap{
-      position:absolute;
-      top:-1px;
-      left:0;
-      width:100%;
-      height:56%;
-      background:linear-gradient(180deg,#ffffff,#ebf9eb);
-      clip-path:polygon(0 0,100% 0,50% 100%);
-      border:3px solid var(--green-3);
-      border-bottom:none;
-      transform-origin:top;
-      transition:transform 0.9s ease;
-      z-index:5;
-      border-radius:18px 18px 0 0;
-    }
-
-    .letter{
-      position:absolute;
-      left:50%;
-      top:18px;
-      transform:translateX(-50%) translateY(30px);
-      width:86%;
-      min-height:155px;
-      background:#ffffff;
-      border:3px solid var(--green-2);
-      border-radius:18px;
-      padding:18px;
-      color:var(--green-6);
-      line-height:1.7;
-      font-size:0.95rem;
-      text-align:left;
-      box-shadow:0 8px 16px rgba(61,127,61,0.12);
-      z-index:1;
-      opacity:0;
-      transition:transform 0.9s ease, opacity 0.9s ease;
-    }
-
-    .opened .env-flap{
-      transform:rotateX(180deg);
-    }
-
-    .opened .letter{
-      transform:translateX(-50%) translateY(-58px);
-      opacity:1;
-      z-index:4;
-    }
-
-    .fade-letter{
-      animation:letterFade 1.2s forwards;
-    }
-
-    @keyframes letterFade{
-      from{ opacity:1; transform:translateX(-50%) translateY(-58px); }
-      to{ opacity:0; transform:translateX(-50%) translateY(-88px); }
-    }
-
-    /* Menu */
-    .menu-grid{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(220px, 1fr));
-      gap:18px;
-      margin-top:24px;
-    }
-
-    .menu-box{
-      background:linear-gradient(180deg,#ffffff,#eef9ee);
-      border:3px solid var(--green-3);
-      border-radius:24px;
-      min-height:135px;
-      padding:18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-      transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-      font-size:1rem;
-      line-height:1.6;
-    }
-
-    .menu-box:hover{
-      transform:translateY(-6px) rotate(-1deg);
-      border-color:var(--green-5);
-      box-shadow:0 16px 24px rgba(61,127,61,0.2);
-    }
-
-    /* Paper modal */
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(215,240,215,0.6);
-      backdrop-filter:blur(5px);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      opacity:0;
-      visibility:hidden;
-      pointer-events:none;
-      transition:opacity 0.35s ease, visibility 0.35s ease;
-      z-index:99;
-    }
-
-    .overlay.show{
-      opacity:1;
-      visibility:visible;
-      pointer-events:auto;
-    }
-
-    .paper{
-      width:min(95vw, 860px);
-      max-height:90vh;
-      overflow:auto;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
       background:
-        linear-gradient(to bottom, #ffffff 0%, #fbfffb 100%);
-      border:3px solid var(--green-3);
-      border-radius:var(--paper-radius);
-      box-shadow:0 20px 40px rgba(61,127,61,0.22);
-      padding:30px 22px;
-      transform:scale(0.92) rotateX(8deg);
-      opacity:0;
-      transition:transform 0.35s ease, opacity 0.35s ease;
-      transform-origin:top center;
-      text-align:left;
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,0.02) 0,
+          rgba(255,255,255,0.02) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+      opacity: 0.25;
     }
 
-    .overlay.show .paper{
-      transform:scale(1) rotateX(0deg);
-      opacity:1;
+    button, input, textarea, select {
+      font: inherit;
     }
 
-    .paper h2{
-      text-align:center;
-      margin-bottom:18px;
-      font-size:clamp(1.3rem, 2.5vw, 2rem);
+    .hidden { display: none !important; }
+
+    .screen {
+      min-height: 100vh;
+      width: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      position: relative;
     }
 
-    .paper-content{
-      line-height:1.9;
-      font-size:0.98rem;
-      white-space:pre-line;
+    .screen.active {
+      display: flex;
+      animation: fadeUp 0.5s ease;
     }
 
-    .paper-actions{
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:24px;
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .form-group{
-      margin-bottom:16px;
+    .frame {
+      width: min(1200px, 100%);
+      background: rgba(15, 20, 17, 0.55);
+      border: 1px solid rgba(184, 155, 98, 0.22);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      position: relative;
     }
 
-    .form-group label{
-      display:block;
-      margin-bottom:8px;
-      line-height:1.6;
+    .ornament {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border: 1px solid rgba(184, 155, 98, 0.16);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .ornament.one { top: -60px; left: -50px; }
+    .ornament.two { right: -35px; bottom: -55px; }
+
+    .card {
+      background: linear-gradient(180deg, rgba(35,44,38,0.94), rgba(22,28,24,0.96));
+      border: 1px solid rgba(184, 155, 98, 0.24);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 34px;
+    }
+
+    .title {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: #f5ead5;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: 1.02rem;
+      line-height: 1.9;
+      color: #ddd1bb;
+    }
+
+    .tiny-note {
+      margin-top: 12px;
+      color: #c7b99f;
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-weight: bold;
+      transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition), background var(--transition);
+      background: linear-gradient(180deg, var(--gold), #937445);
+      color: #fff9ef;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.25);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(180deg, var(--green-2), var(--green));
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid rgba(184, 155, 98, 0.35);
+      color: #e8dbc2;
+    }
+
+    .btn.danger {
+      background: linear-gradient(180deg, #8b554d, #6f3c36);
+    }
+
+    .access-wrap {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 26px;
+      padding: 32px;
+    }
+
+    .access-left,
+    .access-right {
+      min-height: 540px;
+    }
+
+    .access-left {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        linear-gradient(180deg, rgba(28,38,32,0.94), rgba(17,23,20,0.97));
+      border-right: 1px solid rgba(184,155,98,0.18);
+    }
+
+    .access-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(147,177,138,0.12), transparent 30%),
+        linear-gradient(180deg, rgba(25,32,28,0.95), rgba(17,22,20,0.98));
+    }
+
+    .access-panel {
+      width: min(560px, 100%);
+      text-align: center;
+    }
+
+    .access-panel .title {
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(184, 155, 98, 0.25);
+      color: #d8c8a7;
+      border-radius: 999px;
+      padding: 8px 14px;
+      margin-bottom: 18px;
+      font-size: 0.88rem;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .access-box {
+      background: linear-gradient(180deg, rgba(231,220,190,0.98), rgba(211,196,159,0.98));
+      color: var(--ink);
+      border-radius: 24px;
+      padding: 26px;
+      border: 2px solid rgba(111, 143, 114, 0.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), var(--shadow);
+      text-align: left;
+    }
+
+    .access-label {
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #4e5b46;
+      margin-bottom: 8px;
     }
 
     input[type="text"],
-    textarea{
-      width:100%;
-      border:2px solid var(--green-3);
-      border-radius:16px;
-      padding:14px 14px;
-      font-family:inherit;
-      font-size:0.96rem;
-      background:#fbfffb;
-      color:var(--green-6);
-      transition:border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(79,111,82,0.35);
+      background: rgba(255,255,255,0.72);
+      color: #1f2a22;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
     }
 
     input[type="text"]:focus,
-    textarea:focus{
-      outline:none;
-      border-color:var(--green-5);
-      box-shadow:0 0 0 4px rgba(106,174,106,0.15);
-      transform:translateY(-1px);
+    textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 4px rgba(111,143,114,0.15);
+      transform: translateY(-1px);
     }
 
-    textarea{
-      min-height:150px;
-      resize:vertical;
+    textarea {
+      min-height: 140px;
+      resize: vertical;
     }
 
-    .tiny{
-      font-size:0.88rem;
-      opacity:0.8;
-      line-height:1.6;
+    .access-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .thought-list{
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-      margin-top:12px;
+    .access-error {
+      margin-top: 14px;
+      min-height: 22px;
+      color: #5f302b;
+      font-weight: bold;
+      text-align: center;
     }
 
-    .thought-item{
-      background:#fbfffb;
-      border:2px dashed var(--green-3);
-      border-radius:18px;
-      padding:16px;
+    .vault-art {
+      width: min(360px, 100%);
+      aspect-ratio: 1 / 1;
+      border-radius: 28px;
+      position: relative;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(184,155,98,0.15), transparent 30%),
+        linear-gradient(180deg, #223128, #131a17);
+      border: 1px solid rgba(184,155,98,0.2);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    .thought-text{
-      margin-bottom:14px;
-      line-height:1.8;
-      word-break:break-word;
+    .vault-art::before,
+    .vault-art::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(184,155,98,0.18);
+      border-radius: 22px;
     }
 
-    .comment-box{
-      margin-top:10px;
+    .vault-art::after {
+      inset: 42px;
+      border-style: dashed;
     }
 
-    .item-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:12px;
+    .vault-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      padding: 24px;
     }
 
-    .empty-state{
-      text-align:center;
-      padding:24px 12px;
-      border:2px dashed var(--green-3);
-      border-radius:18px;
-      background:#fcfffc;
-      line-height:1.8;
+    .vault-center h2 {
+      font-size: clamp(1.4rem, 2.7vw, 2rem);
+      color: #efe2c6;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    .status-msg{
-      margin-top:12px;
-      text-align:center;
-      font-size:0.92rem;
-      min-height:22px;
+    .vault-center p {
+      color: #cfbf9d;
+      line-height: 1.8;
+      max-width: 260px;
     }
 
-    .success{
-      color:#2f6d2f;
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 22px 26px;
+      border-bottom: 1px solid rgba(184, 155, 98, 0.16);
+      background: rgba(255,255,255,0.02);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(8px);
     }
 
-    .error{
-      color:#7f3d3d;
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
-    @media (max-width: 900px){
-      .menu-grid{
-        grid-template-columns:repeat(2, minmax(180px, 1fr));
-      }
+    .brand {
+      font-size: 1.2rem;
+      color: #f3e6ca;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    @media (max-width: 640px){
-      .screen{
-        padding:18px;
-      }
+    .settings-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-      .card{
-        padding:26px 18px;
-      }
+    .workspace {
+      padding: 24px;
+    }
 
-      .menu-grid{
-        grid-template-columns:1fr;
-      }
+    .welcome-banner {
+      background:
+        linear-gradient(135deg, rgba(184,155,98,0.18), rgba(111,143,114,0.14));
+      border: 1px solid rgba(184,155,98,0.18);
+      padding: 22px;
+      border-radius: 24px;
+      margin-bottom: 22px;
+    }
 
-      .runaway-wrap{
-        height:150px;
-      }
+    .welcome-banner h2 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      color: #f2e6cf;
+      margin-bottom: 8px;
+    }
 
-      .no-btn{
-        left:160px;
-      }
+    .welcome-banner p {
+      color: #d8ccb7;
+      line-height: 1.8;
+    }
 
-      .paper{
-        padding:24px 16px;
-      }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
 
-      .btn{
-        width:100%;
-        max-width:280px;
-      }
+    .menu-box {
+      min-height: 165px;
+      padding: 18px;
+      border-radius: 24px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(184,155,98,0.18);
+      background:
+        linear-gradient(180deg, rgba(47,60,52,0.92), rgba(25,33,28,0.96));
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-      .btn-row{
-        flex-direction:column;
-      }
+    .menu-box:hover {
+      transform: translateY(-6px) rotate(-0.4deg);
+      border-color: rgba(184,155,98,0.45);
+    }
+
+    .menu-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(184,155,98,0.18), transparent 35%);
+      pointer-events: none;
+    }
+
+    .box-number {
+      font-size: 0.9rem;
+      color: #c8b388;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .box-title {
+      font-size: 1.15rem;
+      color: #f5ead0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .box-desc {
+      font-size: 0.93rem;
+      line-height: 1.7;
+      color: #d5c9b3;
+      position: relative;
+      z-index: 1;
+      margin-top: 10px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 10, 9, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      z-index: 50;
+    }
+
+    .overlay.show {
+      display: flex;
+      animation: fadeUp 0.25s ease;
+    }
+
+    .paper {
+      width: min(980px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background:
+        linear-gradient(180deg, rgba(235,225,200,0.99), rgba(222,210,181,0.99));
+      color: var(--ink);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      border: 2px solid rgba(111,143,114,0.3);
+      position: relative;
+      padding: 28px;
+    }
+
+    .paper::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(111,143,114,0.18);
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    .paper h2 {
+      font-size: clamp(1.4rem, 2.4vw, 2rem);
+      margin-bottom: 8px;
+      color: #2b362d;
+    }
+
+    .paper p,
+    .paper li,
+    .paper label,
+    .paper .soft-text {
+      line-height: 1.8;
+      color: #344039;
+    }
+
+    .paper-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .paper-actions,
+    .inline-actions,
+    .item-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .section-card {
+      background: rgba(255,255,255,0.28);
+      border: 1px solid rgba(79,111,82,0.16);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 14px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4d5d50;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 10px;
+      font-size: 0.92rem;
+      color: #305036;
+      font-weight: bold;
+    }
+
+    .status.error { color: #7b3c34; }
+
+    .entry-list,
+    .comment-list,
+    .upload-list,
+    .works-list,
+    .case-list,
+    .logic-list,
+    .question-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .entry-item,
+    .comment-item,
+    .upload-item,
+    .work-item,
+    .case-item,
+    .logic-item,
+    .question-item {
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(79,111,82,0.18);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .entry-item h4,
+    .work-item h4,
+    .case-item h4,
+    .logic-item h4,
+    .question-item h4 {
+      color: #2b362d;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .muted {
+      color: #59665e;
+      font-size: 0.93rem;
+    }
+
+    .empty {
+      padding: 22px;
+      border: 1px dashed rgba(79,111,82,0.35);
+      border-radius: 18px;
+      text-align: center;
+      background: rgba(255,255,255,0.22);
+      color: #526056;
+    }
+
+    .letter-stage {
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .envelope {
+      width: min(340px, 90vw);
+      height: 230px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      margin-top: 12px;
+    }
+
+    .envelope:hover {
+      transform: translateY(-4px);
+    }
+
+    .env-back,
+    .env-left,
+    .env-right,
+    .env-front,
+    .env-flap {
+      position: absolute;
+    }
+
+    .env-back {
+      inset: 0;
+      border-radius: 0 0 24px 24px;
+      background: linear-gradient(180deg, #eadcb8, #d7c39a);
+      border: 2px solid #a18a58;
+      box-shadow: var(--shadow);
+    }
+
+    .env-left {
+      left: 0;
+      bottom: 0;
+      width: 50%;
+      height: 100%;
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+      background: #d6c39d;
+      border-left: 2px solid #a18a58;
+      border-bottom: 2px solid #a18a58;
+      border-radius: 0 0 0 24px;
+      z-index: 3;
+    }
+
+    .env-right {
+      right: 0;
+      bottom: 0;
+      width: 50%;
+      height: 100%;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      background: #ccb78e;
+      border-right: 2px solid #a18a58;
+      border-bottom: 2px solid #a18a58;
+      border-radius: 0 0 24px 0;
+      z-index: 3;
+    }
+
+    .env-front {
+      inset: 0;
+      clip-path: polygon(0 0, 100% 0, 50% 60%);
+      background: #efe1be;
+      border-top: 2px solid #a18a58;
+      z-index: 4;
+    }
+
+    .env-flap {
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 55%;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(180deg, #f3e8ca, #dfcc9d);
+      border: 2px solid #a18a58;
+      border-bottom: none;
+      border-radius: 24px 24px 0 0;
+      transform-origin: top;
+      transition: transform 0.9s ease;
+      z-index: 6;
+    }
+
+    .letter {
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      transform: translateX(-50%) translateY(28px);
+      width: 85%;
+      min-height: 168px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #f8f0db, #ebe0c0);
+      border: 1px solid rgba(79,111,82,0.25);
+      color: #384338;
+      box-shadow: 0 14px 20px rgba(0,0,0,0.18);
+      padding: 18px;
+      text-align: left;
+      line-height: 1.8;
+      opacity: 0.96;
+      z-index: 2;
+      transition: transform 0.9s ease, opacity 0.9s ease;
+      overflow: hidden;
+    }
+
+    .letter-preview-title {
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.8rem;
+      color: #7a6a45;
+      margin-bottom: 10px;
+    }
+
+    .opened .env-flap {
+      transform: rotateX(180deg);
+    }
+
+    .opened .letter {
+      transform: translateX(-50%) translateY(-72px);
+    }
+
+    .letter-only {
+      display: none;
+      width: min(800px, 100%);
+      background: linear-gradient(180deg, #f7eed7, #e7dab9);
+      color: #314033;
+      border-radius: 26px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      border: 2px solid rgba(111,143,114,0.26);
+      text-align: left;
+      line-height: 1.95;
+    }
+
+    .letter-only.show {
+      display: block;
+      animation: fadeUp 0.55s ease;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      border: 1px solid rgba(79,111,82,0.22);
+      background: rgba(255,255,255,0.28);
+      color: #526056;
+    }
+
+    .logic-answer {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(111,143,114,0.12);
+      border: 1px solid rgba(79,111,82,0.16);
+      display: none;
+    }
+
+    .logic-answer.show {
+      display: block;
+    }
+
+    .comment-item {
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.32);
+    }
+
+    .upload-preview {
+      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .thumb {
+      width: 100%;
+      max-width: 260px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(79,111,82,0.2);
+      background: rgba(255,255,255,0.4);
+    }
+
+    .thumb img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .hint {
+      font-size: 0.88rem;
+      color: #5e6a63;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1060px) {
+      .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .access-wrap { grid-template-columns: 1fr; }
+      .access-left, .access-right { min-height: unset; }
+      .two-col, .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .workspace { padding: 16px; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 18px; }
+      .paper { padding: 20px; }
+      .card { padding: 22px; }
+      .access-wrap { padding: 18px; }
+      .btn { width: 100%; justify-content: center; }
+      .paper-actions, .inline-actions, .item-actions, .access-actions { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <!-- Landing -->
-    <section class="screen active" id="landingScreen">
-      <div class="container">
-        <div class="card floating">
-          <h1 class="title">Would you let me know you a little more?</h1>
-          <p class="subtitle">
-            I made something soft and sincere for you. I hope you’ll say yes.
-          </p>
-
-          <div class="runaway-wrap" id="runawayWrap">
-            <button class="btn yes-btn bounce" id="yesBtn">YES</button>
-            <button class="btn secondary no-btn" id="noBtn">NO</button>
+  <section class="screen active" id="accessScreen">
+    <div class="frame">
+      <span class="ornament one"></span>
+      <span class="ornament two"></span>
+      <div class="access-wrap">
+        <div class="access-left">
+          <div class="access-panel">
+            <div class="badge">✦ Private vintage entrance ✦</div>
+            <h1 class="title">WHO ARE YOU?</h1>
+            <p class="subtitle">
+              A secret little corner made especially for Tala. Type the right name to enter.
+              If the answer is not Tala, the archive stays closed.
+            </p>
+            <div class="access-box" style="margin-top: 22px;">
+              <label class="access-label" for="accessName">Answer Box</label>
+              <input type="text" id="accessName" placeholder="Type your name here..." autocomplete="off" />
+              <div class="access-actions">
+                <button class="btn" id="enterBtn">Open the archive</button>
+                <button class="btn ghost" id="clearAccessBtn">Clear</button>
+              </div>
+              <div class="access-error" id="accessMessage"></div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Envelope -->
-    <section class="screen" id="envelopeScreen">
-      <div class="container">
-        <div class="card">
-          <div class="envelope-stage">
-            <h2 class="title">A little letter for you</h2>
-            <p class="envelope-note">Click the envelope to open it.</p>
-
-            <div class="envelope floating" id="envelope">
-              <div class="env-back"></div>
-              <div class="letter" id="letterText">
-                Hi, I made this little space because sometimes I find it hard to say things out loud.
-                So, I thought maybe… I could show you instead.
-              </div>
-              <div class="env-bottom-left"></div>
-              <div class="env-bottom-right"></div>
-              <div class="env-front"></div>
-              <div class="env-flap"></div>
+        <div class="access-right">
+          <div class="vault-art">
+            <div class="vault-center">
+              <h2>Tala</h2>
+              <p>
+                A playful, dark, green-tinted vintage space filled with letters, puzzles, memories, works, uploads, and editable boxes.
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Main Menu -->
-    <section class="screen" id="menuScreen">
-      <div class="container">
-        <div class="card">
-          <h2 class="title">A Little Space For You</h2>
-          <p class="subtitle">
-            Pick any box you want. Everything here is made with care.
-          </p>
-
-          <div class="menu-grid">
-            <div class="menu-box" onclick="openModal('aboutMeModal')">📦 BOX 1<br>About Me</div>
-            <div class="menu-box" onclick="openModal('whyModal')">📦 BOX 2<br>Why I Made This</div>
-            <div class="menu-box" onclick="openModal('questionsModal')">📦 BOX 3<br>Questions for Her</div>
-            <div class="menu-box" onclick="openModal('messageModal')">📦 BOX 4<br>Message</div>
-            <div class="menu-box" onclick="openModal('sayModal')">📦 BOX 5<br>Things You Want to Say</div>
-            <div class="menu-box" onclick="openModal('thoughtsModal'); renderThoughts();">📦 BOX 6<br>Random Thoughts ni Tala</div>
+  <section class="screen" id="letterScreen">
+    <div class="frame">
+      <div class="letter-stage">
+        <div class="badge">✦ Click to open ✦</div>
+        <h2 class="title" style="font-size: clamp(1.8rem, 4vw, 2.8rem);">An envelope for Tala</h2>
+        <p class="subtitle">The letter is already visible on the envelope. Once opened, the envelope disappears and only the letter remains.</p>
+        <div class="envelope" id="envelope">
+          <div class="env-back"></div>
+          <div class="letter" id="letterPreview">
+            <div class="letter-preview-title">Visible letter</div>
+            <div id="letterPreviewText"></div>
           </div>
+          <div class="env-left"></div>
+          <div class="env-right"></div>
+          <div class="env-front"></div>
+          <div class="env-flap"></div>
+        </div>
+        <div class="letter-only" id="letterOnly"></div>
+        <button class="btn secondary hidden" id="continueBtn">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="mainScreen">
+    <div class="frame">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="btn secondary settings-btn" onclick="openModal('settingsModal')">⚙ Settings</button>
+          <div class="brand" id="archiveTitle">Tala's Little Archive</div>
+        </div>
+        <div class="topbar-right">
+          <span class="pill">Dark vintage • green • editable</span>
         </div>
       </div>
-    </section>
-  </div>
 
-  <!-- BOX 1 -->
-  <div class="overlay" id="aboutMeModal">
-    <div class="paper">
-      <h2>About Me</h2>
-      <div class="paper-content">Things about me:
-I’m a bit shy, especially when it comes to people I care about.
-I’m scared of dolls, lizards, snakes, and other reptiles—but I still love them; I’m just scared.
-I love animals.
-I love writing, but I feel like I’ve lost my touch.
-I’m an INFP.
-I love Garfield.
-I secretly love “Sana Maulit Muli” and other Disney songs.
-I also enjoy ballads with a theatrical touch (please don’t judge me).
-I want to learn how to play the piano.
-I love watching classic Filipino films.
-I first created an Instagram account when my ex told me that Sharon Cuneta replies to her fans’ messages.
-I’m a fan of Sharon Cuneta.
-I made this because I wanted to get to know you better.</div>
-      <div class="paper-actions">
-        <button class="btn done" onclick="closeModal('aboutMeModal')">DONE</button>
+      <div class="workspace">
+        <div class="welcome-banner">
+          <h2 id="welcomeHeading">Welcome, Tala.</h2>
+          <p id="welcomeText">
+            This is a creative little notepad archive with customizable boxes, playful interactions, editable content, uploads, comments, puzzles, and a settings panel that controls the whole space.
+          </p>
+        </div>
+
+        <div class="menu-grid" id="menuGrid"></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- BOX 2 -->
-  <div class="overlay" id="whyModal">
+  <div class="overlay" id="boxModal">
     <div class="paper">
-      <h2>Why I Made This</h2>
-      <div class="paper-content">To be loved is to be known.
-I don’t know if what I feel is something big yet, but I do know that I’d like to know you—and maybe let you know me too.
-That’s why I made this.</div>
-      <div class="paper-actions">
-        <button class="btn done" onclick="closeModal('whyModal')">DONE</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOX 3 -->
-  <div class="overlay" id="questionsModal">
-    <div class="paper">
-      <h2>Questions for Her</h2>
-
-      <form id="questionsForm" action="https://formspree.io/f/xqegbegn" method="POST">
-        <div id="questionFields"></div>
-
-        <input type="hidden" name="_subject" value="Questions for Her Response" />
-        <input type="hidden" name="_captcha" value="false" />
-
+      <div class="paper-top">
+        <div>
+          <h2 id="boxModalTitle">Box</h2>
+          <p class="soft-text" id="boxModalSubtitle"></p>
+        </div>
         <div class="paper-actions">
-          <button type="submit" class="btn">SAVE</button>
-          <button type="button" class="btn secondary" onclick="closeModal('questionsModal')">DONE</button>
+          <button class="btn ghost" onclick="closeModal('boxModal')">Close</button>
         </div>
-        <div class="status-msg" id="questionStatus"></div>
-      </form>
+      </div>
+      <div id="boxModalContent"></div>
     </div>
   </div>
 
-  <!-- BOX 4 -->
-  <div class="overlay" id="messageModal">
+  <div class="overlay" id="settingsModal">
     <div class="paper">
-      <h2>Message</h2>
-      <div class="paper-content">No pressure at all.
-Even if nothing comes from this, I’m just glad I got to try.
-– MD</div>
-      <div class="paper-actions">
-        <button class="btn done" onclick="closeModal('messageModal')">DONE</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOX 5 -->
-  <div class="overlay" id="sayModal">
-    <div class="paper">
-      <h2>Things You Want to Say</h2>
-
-      <div class="form-group">
-        <label for="thoughtInput">What's on your mind? I'm all ears</label>
-        <textarea id="thoughtInput" placeholder="What's on your mind? I'm all ears"></textarea>
+      <div class="paper-top">
+        <div>
+          <h2>Settings</h2>
+          <p class="soft-text">Everything can be edited here, including titles, descriptions, welcome text, and the visible letter.</p>
+        </div>
+        <div class="paper-actions">
+          <button class="btn ghost" onclick="closeModal('settingsModal')">Close</button>
+        </div>
       </div>
 
-      <div class="paper-actions">
-        <button class="btn" onclick="saveThought()">SAVE</button>
-        <button class="btn secondary" onclick="closeModal('sayModal')">DONE</button>
-      </div>
-      <div class="status-msg" id="thoughtStatus"></div>
-      <p class="tiny" style="text-align:center; margin-top:10px;">
-        Saved locally using localStorage and shown in Box 6.
-      </p>
-    </div>
-  </div>
+      <div class="settings-grid">
+        <div class="section-card">
+          <div class="section-title">Archive details</div>
+          <label>Archive title</label>
+          <input type="text" id="settingsArchiveTitle" />
+          <label style="margin-top: 10px; display:block;">Welcome heading</label>
+          <input type="text" id="settingsWelcomeHeading" />
+          <label style="margin-top: 10px; display:block;">Welcome text</label>
+          <textarea id="settingsWelcomeText"></textarea>
+        </div>
 
-  <!-- BOX 6 -->
-  <div class="overlay" id="thoughtsModal">
-    <div class="paper">
-      <h2>Random Thoughts ni Tala</h2>
-      <div id="thoughtsContainer" class="thought-list"></div>
-      <div class="paper-actions">
-        <button class="btn done" onclick="closeModal('thoughtsModal')">DONE</button>
+        <div class="section-card">
+          <div class="section-title">Letter content</div>
+          <label>Letter text</label>
+          <textarea id="settingsLetterText"></textarea>
+          <p class="hint">This is the text visible on the envelope and on the full opened letter.</p>
+        </div>
       </div>
+
+      <div class="section-card">
+        <div class="section-title">Editable box titles and descriptions</div>
+        <div id="settingsBoxes"></div>
+      </div>
+
+      <div class="paper-actions" style="margin-top: 16px;">
+        <button class="btn" onclick="saveSettings()">Save settings</button>
+        <button class="btn secondary" onclick="resetAllData()">Reset all local data</button>
+      </div>
+      <div class="status" id="settingsStatus"></div>
     </div>
   </div>
 
   <script>
-    const screens = {
-      landing: document.getElementById("landingScreen"),
-      envelope: document.getElementById("envelopeScreen"),
-      menu: document.getElementById("menuScreen")
+    const storageKey = "talaVintageArchiveData_v3";
+
+    const defaultData = {
+      settings: {
+        archiveTitle: "Tala's Little Archive",
+        welcomeHeading: "Welcome, Tala.",
+        welcomeText: "This is a creative little notepad archive with customizable boxes, playful interactions, editable content, uploads, comments, puzzles, and a settings panel that controls the whole space.",
+        letterText: "Hi, Tala. This little archive was made as a playful vintage corner just for you — a place for thoughts, works, curious questions, puzzles, uploads, and whatever stories you want to leave behind.",
+      },
+      boxes: [
+        { id: 1, title: "About Me", description: "An empty editable page.", type: "simpleText", content: "" },
+        { id: 2, title: "Box 2", description: "Fully editable content box.", type: "simpleText", content: "" },
+        { id: 3, title: "Questions for Her", description: "Add, edit, and delete questions and answers.", type: "questions" },
+        { id: 4, title: "Box 4", description: "Another editable content box.", type: "simpleText", content: "" },
+        { id: 5, title: "Things You Want to Say", description: "Write entries and keep them saved.", type: "journal" },
+        { id: 6, title: "Random Thoughts ni Tala", description: "Saved thoughts appear here and can be edited or deleted.", type: "thoughts" },
+        { id: 7, title: "Situational Logic Puzzles", description: "A game with answer reveal after submission.", type: "logic" },
+        { id: 8, title: "Works", description: "A works board with editable posts and comments.", type: "works" },
+        { id: 9, title: "Case Digest", description: "Upload PDF files and write unlimited answers below each file.", type: "cases" },
+        { id: 10, title: "Storage Box", description: "Unlimited local uploads for files and images.", type: "storage" }
+      ],
+      questions: [
+        { id: uid(), question: "What makes you feel most like yourself?", answer: "" },
+        { id: uid(), question: "What kind of days feel the softest to you?", answer: "" },
+        { id: uid(), question: "What is one thing you wish people understood better about you?", answer: "" }
+      ],
+      entries: [],
+      works: [],
+      cases: [],
+      storageUploads: [],
+      logicPuzzles: [
+        {
+          id: uid(),
+          title: "The Silent Library Mystery",
+          scenario: "A librarian is found unconscious in a locked library room. The windows are shut from the inside, and the only key is in the librarian’s pocket. Three visitors were inside earlier: Alex left 10 minutes before closing. Bea returned a book and left quickly. Carlo stayed reading until closing time. The guard says no one entered or left after closing. Clue: The room smells strongly of almonds.",
+          prompt: "What happened?",
+          answer: "The almond smell suggests cyanide poisoning. The librarian was likely poisoned before closing, so no intruder needed to enter afterward. The locked room is misleading: the crime happened earlier.",
+          userInput: "",
+          revealed: false
+        },
+        {
+          id: uid(),
+          title: "The Contradicting Witnesses",
+          scenario: "A painting is stolen from a gallery. Dana says, ‘I was in the café the whole time.’ Eli says, ‘I saw Dana in the gallery.’ Fran says, ‘Eli is lying.’ Only one person is telling the truth.",
+          prompt: "Who stole the painting?",
+          answer: "Eli is the only truthful one. That means Dana lied about being in the café, and Fran lied when saying Eli was lying. Dana was in the gallery and is the thief.",
+          userInput: "",
+          revealed: false
+        },
+        {
+          id: uid(),
+          title: "The Broken Vase",
+          scenario: "A vase is broken in a house. Person A says, ‘I didn’t do it.’ Person B says, ‘Person C did it.’ Person C says, ‘Person B is lying.’ Only one statement is true.",
+          prompt: "Who broke the vase?",
+          answer: "Person A broke the vase. If B is the only truthful one, then C did not break it and A’s denial is false, leaving A as the culprit.",
+          userInput: "",
+          revealed: false
+        },
+        {
+          id: uid(),
+          title: "The Midnight Call",
+          scenario: "A man receives a phone call at midnight, then is found dead. Wife says she was asleep. Neighbor says he heard nothing. Friend says he called the victim earlier at 8 PM. Phone records show the last call came from inside the house.",
+          prompt: "Who is lying?",
+          answer: "The wife is lying. The last call came from inside the house, so she could not truly have slept through it if she was the one who placed or staged the call.",
+          userInput: "",
+          revealed: false
+        },
+        {
+          id: uid(),
+          title: "The Missing Exam Paper",
+          scenario: "An exam paper goes missing. Leo says, ‘Mia took it.’ Mia says, ‘No, Noah took it.’ Noah says, ‘Leo is lying.’ Exactly one statement is false.",
+          prompt: "Who took the paper?",
+          answer: "Noah took the paper. Leo is the only false one, while Mia and Noah’s statements align in a way that leaves Noah guilty.",
+          userInput: "",
+          revealed: false
+        },
+        {
+          id: uid(),
+          title: "The Train Alibi",
+          scenario: "A suspect claims, ‘I couldn’t have committed the crime — I was on a train.’ But records show the train was delayed, and the crime happened during the delay window.",
+          prompt: "Is the alibi valid?",
+          answer: "No. The delay creates a gap that makes the alibi unreliable because the suspect could have left during the delay and committed the crime.",
+          userInput: "",
+          revealed: false
+        },
+        {
+          id: uid(),
+          title: "The Two Doors Puzzle",
+          scenario: "A suspect must choose between two doors: one leads to freedom and one leads to arrest. Two guards stand there. One always lies and one always tells the truth.",
+          prompt: "What question guarantees freedom?",
+          answer: "Ask either guard: ‘Which door would the other guard say leads to freedom?’ Then choose the opposite door.",
+          userInput: "",
+          revealed: false
+        }
+      ]
     };
 
-    function showScreen(screenEl){
-      Object.values(screens).forEach(screen => screen.classList.remove("active"));
-      screenEl.classList.add("active");
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     }
 
-    // Landing page logic
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn = document.getElementById("noBtn");
-    const runawayWrap = document.getElementById("runawayWrap");
-
-    yesBtn.addEventListener("click", () => {
-      showScreen(screens.envelope);
-    });
-
-    let noState = "normal";
-
-    function moveNoButton(e){
-      if (noState !== "normal") return;
-
-      const wrapRect = runawayWrap.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
-
-      const btnCenterX = btnRect.left + btnRect.width / 2;
-      const btnCenterY = btnRect.top + btnRect.height / 2;
-
-      const dx = e.clientX - btnCenterX;
-      const dy = e.clientY - btnCenterY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < 120){
-        const maxLeft = wrapRect.width - btnRect.width;
-        const maxTop = wrapRect.height - btnRect.height;
-
-        const newLeft = Math.max(0, Math.min(maxLeft, Math.random() * maxLeft));
-        const newTop = Math.max(0, Math.min(maxTop, Math.random() * maxTop));
-
-        noBtn.style.left = newLeft + "px";
-        noBtn.style.top = newTop + "px";
+    function loadData() {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return structuredClone(defaultData);
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          ...structuredClone(defaultData),
+          ...parsed,
+          settings: { ...structuredClone(defaultData).settings, ...(parsed.settings || {}) },
+          boxes: parsed.boxes && parsed.boxes.length ? parsed.boxes : structuredClone(defaultData).boxes,
+          questions: parsed.questions || structuredClone(defaultData).questions,
+          entries: parsed.entries || [],
+          works: parsed.works || [],
+          cases: parsed.cases || [],
+          storageUploads: parsed.storageUploads || [],
+          logicPuzzles: parsed.logicPuzzles && parsed.logicPuzzles.length ? parsed.logicPuzzles : structuredClone(defaultData).logicPuzzles,
+        };
+      } catch {
+        return structuredClone(defaultData);
       }
     }
 
-    document.addEventListener("mousemove", moveNoButton);
+    let data = loadData();
 
-    noBtn.addEventListener("click", () => {
-      if (noState === "normal"){
-        noState = "sad";
-        noBtn.textContent = "😢";
-        noBtn.style.transform = "scale(1.15)";
-        setTimeout(() => {
-          noState = "turnedYes";
-          noBtn.textContent = "YES";
-          noBtn.classList.remove("secondary");
-          noBtn.classList.add("bounce");
-          noBtn.style.background = "linear-gradient(180deg,var(--green-4),var(--green-5))";
-          noBtn.style.color = "white";
-          noBtn.style.transform = "scale(1)";
-        }, 700);
-      } else if (noState === "turnedYes"){
-        showScreen(screens.envelope);
-      }
-    });
-
-    // Envelope page logic
-    const envelope = document.getElementById("envelope");
-    const letterText = document.getElementById("letterText");
-    let envelopeOpened = false;
-
-    envelope.addEventListener("click", () => {
-      if (envelopeOpened) return;
-      envelopeOpened = true;
-      envelope.classList.add("opened");
-
-      setTimeout(() => {
-        letterText.classList.add("fade-letter");
-      }, 2800);
-
-      setTimeout(() => {
-        showScreen(screens.menu);
-      }, 4300);
-    });
-
-    // Modal logic
-    function openModal(id){
-      document.getElementById(id).classList.add("show");
+    function saveData() {
+      localStorage.setItem(storageKey, JSON.stringify(data));
     }
 
-    function closeModal(id){
-      document.getElementById(id).classList.remove("show");
+    const accessScreen = document.getElementById('accessScreen');
+    const letterScreen = document.getElementById('letterScreen');
+    const mainScreen = document.getElementById('mainScreen');
+    const accessName = document.getElementById('accessName');
+    const accessMessage = document.getElementById('accessMessage');
+    const enterBtn = document.getElementById('enterBtn');
+    const clearAccessBtn = document.getElementById('clearAccessBtn');
+    const envelope = document.getElementById('envelope');
+    const letterPreviewText = document.getElementById('letterPreviewText');
+    const letterOnly = document.getElementById('letterOnly');
+    const continueBtn = document.getElementById('continueBtn');
+    const archiveTitle = document.getElementById('archiveTitle');
+    const welcomeHeading = document.getElementById('welcomeHeading');
+    const welcomeText = document.getElementById('welcomeText');
+    const menuGrid = document.getElementById('menuGrid');
+    const boxModalTitle = document.getElementById('boxModalTitle');
+    const boxModalSubtitle = document.getElementById('boxModalSubtitle');
+    const boxModalContent = document.getElementById('boxModalContent');
+
+    function setScreen(name) {
+      [accessScreen, letterScreen, mainScreen].forEach(screen => screen.classList.remove('active'));
+      if (name === 'access') accessScreen.classList.add('active');
+      if (name === 'letter') letterScreen.classList.add('active');
+      if (name === 'main') mainScreen.classList.add('active');
     }
 
-    document.querySelectorAll(".overlay").forEach(overlay => {
-      overlay.addEventListener("click", function(e){
-        if (e.target === overlay){
-          overlay.classList.remove("show");
-        }
+    function openModal(id) {
+      document.getElementById(id).classList.add('show');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    document.querySelectorAll('.overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('show');
       });
     });
 
-    // BOX 3 questions
-    const questions = [
-      "What makes you happy?",
-      "What kind of days do you enjoy the most?",
-      "What’s something you wish more people understood about you?",
-      "Do you have a favorite childhood memory?",
-      "What’s a weird food combo you secretly love?",
-      "What’s something that always makes you smile?",
-      "Do you prefer big adventures or quiet nights?",
-      "Is there something you’re really passionate about?",
-      "Do you have a dream project or goal you want to accomplish?",
-      "What’s one thing people usually misunderstand about you?",
-      "Have you ever had a moment that completely changed your perspective?",
-      "Do you have a favorite family tradition?",
-      "What's your political stance?"
-    ];
+    function renderShell() {
+      archiveTitle.textContent = data.settings.archiveTitle;
+      welcomeHeading.textContent = data.settings.welcomeHeading;
+      welcomeText.textContent = data.settings.welcomeText;
+      letterPreviewText.textContent = data.settings.letterText;
+      letterOnly.innerHTML = `
+        <div class="badge" style="margin-bottom: 12px;">✦ Opened letter ✦</div>
+        <h2 style="margin-bottom: 14px; color:#2f3a31;">For Tala</h2>
+        <p>${escapeHtml(data.settings.letterText).replace(/\n/g, '<br>')}</p>
+      `;
 
-    const questionFields = document.getElementById("questionFields");
-
-    questions.forEach((q, i) => {
-      const wrap = document.createElement("div");
-      wrap.className = "form-group";
-
-      const label = document.createElement("label");
-      label.setAttribute("for", "q" + (i + 1));
-      label.textContent = q;
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = "q" + (i + 1);
-      input.name = "Question " + (i + 1) + " - " + q;
-      input.placeholder = "please type your answer here";
-
-      wrap.appendChild(label);
-      wrap.appendChild(input);
-      questionFields.appendChild(wrap);
-    });
-
-    const questionsForm = document.getElementById("questionsForm");
-    const questionStatus = document.getElementById("questionStatus");
-
-    questionsForm.addEventListener("submit", async function(e){
-      e.preventDefault();
-      questionStatus.textContent = "Sending your answers...";
-      questionStatus.className = "status-msg";
-
-      const formData = new FormData(questionsForm);
-
-      try{
-        const response = await fetch(questionsForm.action, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-
-        if(response.ok){
-          questionStatus.textContent = "Answers saved and sent successfully.";
-          questionStatus.className = "status-msg success";
-          questionsForm.reset();
-        }else{
-          questionStatus.textContent = "Something went wrong while sending. Please try again.";
-          questionStatus.className = "status-msg error";
-        }
-      }catch(error){
-        questionStatus.textContent = "Unable to send right now. Please check your internet and try again.";
-        questionStatus.className = "status-msg error";
-      }
-    });
-
-    // BOX 5 and 6 localStorage logic
-    const thoughtInput = document.getElementById("thoughtInput");
-    const thoughtStatus = document.getElementById("thoughtStatus");
-    const thoughtsContainer = document.getElementById("thoughtsContainer");
-
-    function getThoughts(){
-      return JSON.parse(localStorage.getItem("talaThoughts") || "[]");
-    }
-
-    function setThoughts(thoughts){
-      localStorage.setItem("talaThoughts", JSON.stringify(thoughts));
-    }
-
-    function saveThought(){
-      const text = thoughtInput.value.trim();
-
-      if(!text){
-        thoughtStatus.textContent = "Please write something first.";
-        thoughtStatus.className = "status-msg error";
-        return;
-      }
-
-      const thoughts = getThoughts();
-      thoughts.unshift({
-        id: Date.now(),
-        text: text,
-        comment: ""
-      });
-
-      setThoughts(thoughts);
-      thoughtInput.value = "";
-      thoughtStatus.textContent = "Saved successfully. It was also sent to Box 6.";
-      thoughtStatus.className = "status-msg success";
-      renderThoughts();
-    }
-
-    function renderThoughts(){
-      const thoughts = getThoughts();
-      thoughtsContainer.innerHTML = "";
-
-      if(!thoughts.length){
-        thoughtsContainer.innerHTML = `
-          <div class="empty-state">
-            No saved thoughts yet.<br>
-            Go to <strong>Box 5</strong> and write something first.
-          </div>
-        `;
-        return;
-      }
-
-      thoughts.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "thought-item";
-
+      menuGrid.innerHTML = '';
+      data.boxes.forEach(box => {
+        const div = document.createElement('div');
+        div.className = 'menu-box';
         div.innerHTML = `
-          <div class="thought-text">${escapeHtml(item.text).replace(/\n/g, "<br>")}</div>
-          <div class="comment-box">
-            <label for="comment-${item.id}" style="display:block; margin-bottom:8px;">Comment section</label>
-            <textarea id="comment-${item.id}" placeholder="Write your comment here...">${escapeTextarea(item.comment || "")}</textarea>
+          <div>
+            <div class="box-number">Box ${box.id}</div>
+            <div class="box-title">${escapeHtml(box.title)}</div>
           </div>
-          <div class="item-actions">
-            <button class="btn" onclick="saveComment(${item.id})">SAVE COMMENT</button>
-            <button class="btn secondary" onclick="deleteThought(${item.id})">DELETE</button>
-          </div>
+          <div class="box-desc">${escapeHtml(box.description || '')}</div>
         `;
+        div.addEventListener('click', () => openBox(box.id));
+        menuGrid.appendChild(div);
+      });
 
-        thoughtsContainer.appendChild(div);
+      renderSettingsForm();
+      saveData();
+    }
+
+    function renderSettingsForm() {
+      document.getElementById('settingsArchiveTitle').value = data.settings.archiveTitle;
+      document.getElementById('settingsWelcomeHeading').value = data.settings.welcomeHeading;
+      document.getElementById('settingsWelcomeText').value = data.settings.welcomeText;
+      document.getElementById('settingsLetterText').value = data.settings.letterText;
+
+      const container = document.getElementById('settingsBoxes');
+      container.innerHTML = '';
+      data.boxes.forEach(box => {
+        const wrap = document.createElement('div');
+        wrap.className = 'section-card';
+        wrap.innerHTML = `
+          <div class="section-title">Box ${box.id}</div>
+          <label>Title</label>
+          <input type="text" data-box-title="${box.id}" value="${escapeAttr(box.title)}" />
+          <label style="display:block; margin-top:10px;">Description</label>
+          <textarea data-box-desc="${box.id}">${escapeTextarea(box.description || '')}</textarea>
+        `;
+        container.appendChild(wrap);
       });
     }
 
-    function saveComment(id){
-      const thoughts = getThoughts();
-      const item = thoughts.find(t => t.id === id);
-      const textarea = document.getElementById("comment-" + id);
+    function saveSettings() {
+      data.settings.archiveTitle = document.getElementById('settingsArchiveTitle').value.trim() || defaultData.settings.archiveTitle;
+      data.settings.welcomeHeading = document.getElementById('settingsWelcomeHeading').value.trim() || defaultData.settings.welcomeHeading;
+      data.settings.welcomeText = document.getElementById('settingsWelcomeText').value.trim() || defaultData.settings.welcomeText;
+      data.settings.letterText = document.getElementById('settingsLetterText').value.trim() || defaultData.settings.letterText;
 
-      if(item && textarea){
-        item.comment = textarea.value;
-        setThoughts(thoughts);
-        renderThoughts();
+      data.boxes = data.boxes.map(box => {
+        const title = document.querySelector(`[data-box-title="${box.id}"]`).value.trim();
+        const desc = document.querySelector(`[data-box-desc="${box.id}"]`).value.trim();
+        return { ...box, title: title || box.title, description: desc };
+      });
+
+      saveData();
+      renderShell();
+      document.getElementById('settingsStatus').textContent = 'Settings saved.';
+      setTimeout(() => {
+        document.getElementById('settingsStatus').textContent = '';
+      }, 1800);
+    }
+
+    function resetAllData() {
+      if (!confirm('Reset all local data for this archive?')) return;
+      data = structuredClone(defaultData);
+      saveData();
+      renderShell();
+      closeModal('settingsModal');
+      closeModal('boxModal');
+      alert('All local archive data has been reset.');
+    }
+
+    enterBtn.addEventListener('click', () => {
+      const value = accessName.value.trim();
+      if (value.toLowerCase() === 'tala') {
+        accessMessage.style.color = '#305036';
+        accessMessage.textContent = 'Welcome, Tala.';
+        setTimeout(() => setScreen('letter'), 450);
+      } else {
+        accessMessage.style.color = '#7b3c34';
+        accessMessage.textContent = 'this is not for you';
       }
+    });
+
+    accessName.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') enterBtn.click();
+    });
+
+    clearAccessBtn.addEventListener('click', () => {
+      accessName.value = '';
+      accessMessage.textContent = '';
+      accessName.focus();
+    });
+
+    envelope.addEventListener('click', () => {
+      if (envelope.classList.contains('opened')) return;
+      envelope.classList.add('opened');
+      setTimeout(() => {
+        envelope.classList.add('hidden');
+        letterOnly.classList.add('show');
+        continueBtn.classList.remove('hidden');
+      }, 1300);
+    });
+
+    continueBtn.addEventListener('click', () => setScreen('main'));
+
+    function getBox(id) {
+      return data.boxes.find(box => box.id === id);
     }
 
-    function deleteThought(id){
-      let thoughts = getThoughts();
-      thoughts = thoughts.filter(t => t.id !== id);
-      setThoughts(thoughts);
-      renderThoughts();
+    function updateSimpleBox(id, newText) {
+      data.boxes = data.boxes.map(box => box.id === id ? { ...box, content: newText } : box);
+      saveData();
     }
 
-    function escapeHtml(text){
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    function openBox(id) {
+      const box = getBox(id);
+      boxModalTitle.textContent = box.title;
+      boxModalSubtitle.textContent = box.description || '';
+
+      if (box.type === 'simpleText') renderSimpleTextBox(box);
+      if (box.type === 'questions') renderQuestionsBox();
+      if (box.type === 'journal') renderJournalBox();
+      if (box.type === 'thoughts') renderThoughtsBox();
+      if (box.type === 'logic') renderLogicBox();
+      if (box.type === 'works') renderWorksBox();
+      if (box.type === 'cases') renderCasesBox();
+      if (box.type === 'storage') renderStorageBox();
+
+      openModal('boxModal');
     }
 
-    function escapeTextarea(text){
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    function renderSimpleTextBox(box) {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Editable content</div>
+          <textarea id="simpleBoxTextarea">${escapeTextarea(box.content || '')}</textarea>
+          <div class="paper-actions" style="margin-top: 14px;">
+            <button class="btn" onclick="saveSimpleBox(${box.id})">Save</button>
+            <button class="btn danger" onclick="clearSimpleBox(${box.id})">Clear</button>
+          </div>
+          <div class="status" id="simpleBoxStatus"></div>
+        </div>
+      `;
     }
 
-    renderThoughts();
+    function saveSimpleBox(id) {
+      const val = document.getElementById('simpleBoxTextarea').value;
+      updateSimpleBox(id, val);
+      document.getElementById('simpleBoxStatus').textContent = 'Saved.';
+    }
+
+    function clearSimpleBox(id) {
+      document.getElementById('simpleBoxTextarea').value = '';
+      updateSimpleBox(id, '');
+      document.getElementById('simpleBoxStatus').textContent = 'Cleared.';
+    }
+
+    function renderQuestionsBox() {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Add a new customizable question</div>
+          <label>Question</label>
+          <input type="text" id="newQuestionText" placeholder="Write a new question..." />
+          <div class="paper-actions" style="margin-top:14px;">
+            <button class="btn" onclick="addQuestion()">Add question</button>
+          </div>
+          <div class="status" id="questionStatus"></div>
+        </div>
+        <div class="question-list" id="questionsList"></div>
+      `;
+      drawQuestions();
+    }
+
+    function drawQuestions() {
+      const list = document.getElementById('questionsList');
+      if (!data.questions.length) {
+        list.innerHTML = '<div class="empty">No questions yet.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.questions.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'question-item';
+        div.innerHTML = `
+          <h4>Question</h4>
+          <input type="text" id="question-${item.id}" value="${escapeAttr(item.question)}" />
+          <label style="display:block; margin-top:10px;">Answer</label>
+          <textarea id="answer-${item.id}" placeholder="Type the answer here...">${escapeTextarea(item.answer || '')}</textarea>
+          <div class="item-actions">
+            <button class="btn" onclick="saveQuestion('${item.id}')">Save</button>
+            <button class="btn danger" onclick="deleteQuestion('${item.id}')">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function addQuestion() {
+      const input = document.getElementById('newQuestionText');
+      const text = input.value.trim();
+      if (!text) {
+        document.getElementById('questionStatus').textContent = 'Please type a question first.';
+        document.getElementById('questionStatus').classList.add('error');
+        return;
+      }
+      data.questions.unshift({ id: uid(), question: text, answer: '' });
+      input.value = '';
+      saveData();
+      drawQuestions();
+      document.getElementById('questionStatus').textContent = 'Question added.';
+      document.getElementById('questionStatus').classList.remove('error');
+    }
+
+    function saveQuestion(id) {
+      const q = document.getElementById(`question-${id}`).value;
+      const a = document.getElementById(`answer-${id}`).value;
+      data.questions = data.questions.map(item => item.id === id ? { ...item, question: q, answer: a } : item);
+      saveData();
+      drawQuestions();
+    }
+
+    function deleteQuestion(id) {
+      data.questions = data.questions.filter(item => item.id !== id);
+      saveData();
+      drawQuestions();
+    }
+
+    function renderJournalBox() {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Write something</div>
+          <textarea id="journalEntryInput" placeholder="Write anything you want to say..."></textarea>
+          <div class="paper-actions" style="margin-top:14px;">
+            <button class="btn" onclick="saveJournalEntry()">Save entry</button>
+          </div>
+          <div class="status" id="journalStatus"></div>
+        </div>
+      `;
+    }
+
+    function saveJournalEntry() {
+      const text = document.getElementById('journalEntryInput').value.trim();
+      const status = document.getElementById('journalStatus');
+      if (!text) {
+        status.textContent = 'Please write something first.';
+        status.classList.add('error');
+        return;
+      }
+      data.entries.unshift({ id: uid(), text, createdAt: new Date().toLocaleString() });
+      saveData();
+      status.textContent = 'Saved to Random Thoughts ni Tala.';
+      status.classList.remove('error');
+      document.getElementById('journalEntryInput').value = '';
+    }
+
+    function renderThoughtsBox() {
+      boxModalContent.innerHTML = `<div id="thoughtsList"></div>`;
+      const list = document.getElementById('thoughtsList');
+      if (!data.entries.length) {
+        list.innerHTML = '<div class="empty">No saved thoughts yet.</div>';
+        return;
+      }
+
+      const wrap = document.createElement('div');
+      wrap.className = 'entry-list';
+      data.entries.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'entry-item';
+        div.innerHTML = `
+          <h4>${escapeHtml(item.createdAt || 'Saved thought')}</h4>
+          <textarea id="entry-${item.id}">${escapeTextarea(item.text)}</textarea>
+          <div class="item-actions">
+            <button class="btn" onclick="updateEntry('${item.id}')">Save</button>
+            <button class="btn danger" onclick="deleteEntry('${item.id}')">Delete</button>
+          </div>
+        `;
+        wrap.appendChild(div);
+      });
+      list.appendChild(wrap);
+    }
+
+    function updateEntry(id) {
+      const val = document.getElementById(`entry-${id}`).value;
+      data.entries = data.entries.map(item => item.id === id ? { ...item, text: val } : item);
+      saveData();
+      renderThoughtsBox();
+    }
+
+    function deleteEntry(id) {
+      data.entries = data.entries.filter(item => item.id !== id);
+      saveData();
+      renderThoughtsBox();
+    }
+
+    function renderLogicBox() {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Add your own logic puzzle</div>
+          <div class="two-col">
+            <div>
+              <label>Title</label>
+              <input type="text" id="logicTitle" placeholder="Puzzle title" />
+            </div>
+            <div>
+              <label>Question</label>
+              <input type="text" id="logicPrompt" placeholder="Question to answer" />
+            </div>
+          </div>
+          <label style="display:block; margin-top:10px;">Scenario</label>
+          <textarea id="logicScenario" placeholder="Write the scenario..."></textarea>
+          <label style="display:block; margin-top:10px;">Answer</label>
+          <textarea id="logicAnswerInput" placeholder="Write the correct answer..."></textarea>
+          <div class="paper-actions" style="margin-top:14px;">
+            <button class="btn" onclick="addLogicPuzzle()">Add puzzle</button>
+          </div>
+        </div>
+        <div class="logic-list" id="logicList"></div>
+      `;
+      drawLogicPuzzles();
+      attachRunawayButtons();
+    }
+
+    function drawLogicPuzzles() {
+      const list = document.getElementById('logicList');
+      if (!data.logicPuzzles.length) {
+        list.innerHTML = '<div class="empty">No logic puzzles yet.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.logicPuzzles.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'logic-item';
+        div.innerHTML = `
+          <h4>${escapeHtml(item.title)}</h4>
+          <p><strong>Scenario:</strong> ${escapeHtml(item.scenario)}</p>
+          <p style="margin-top:10px;"><strong>Question:</strong> ${escapeHtml(item.prompt)}</p>
+          <label style="display:block; margin-top:12px;">Your answer</label>
+          <textarea id="logic-user-${item.id}" placeholder="Type your answer here...">${escapeTextarea(item.userInput || '')}</textarea>
+          <div class="item-actions" style="position:relative; min-height:54px;">
+            <button class="btn logic-done-btn" data-logic-btn="${item.id}" onclick="submitLogicAnswer('${item.id}')">Done</button>
+            <button class="btn secondary" onclick="editLogicPuzzle('${item.id}')">Quick edit</button>
+            <button class="btn danger" onclick="deleteLogicPuzzle('${item.id}')">Delete</button>
+          </div>
+          <div class="logic-answer ${item.revealed ? 'show' : ''}" id="logic-answer-${item.id}">
+            <strong>Answer:</strong> ${escapeHtml(item.answer)}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function attachRunawayButtons() {
+      document.querySelectorAll('.logic-done-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', logicRunawayHandler);
+        btn.addEventListener('mousemove', logicRunawayHandler);
+      });
+    }
+
+    function logicRunawayHandler(e) {
+      const btn = e.currentTarget;
+      const id = btn.getAttribute('data-logic-btn');
+      const textarea = document.getElementById(`logic-user-${id}`);
+      if (!textarea || !textarea.value.trim()) return;
+      const parent = btn.parentElement;
+      parent.style.position = 'relative';
+      btn.style.position = 'absolute';
+      const maxX = Math.max(parent.clientWidth - btn.offsetWidth - 4, 10);
+      const maxY = Math.max(parent.clientHeight - btn.offsetHeight - 4, 10);
+      btn.style.left = Math.floor(Math.random() * maxX) + 'px';
+      btn.style.top = Math.floor(Math.random() * maxY) + 'px';
+    }
+
+    function submitLogicAnswer(id) {
+      const input = document.getElementById(`logic-user-${id}`).value;
+      data.logicPuzzles = data.logicPuzzles.map(item => item.id === id ? { ...item, userInput: input, revealed: true } : item);
+      saveData();
+      drawLogicPuzzles();
+      attachRunawayButtons();
+    }
+
+    function addLogicPuzzle() {
+      const title = document.getElementById('logicTitle').value.trim();
+      const scenario = document.getElementById('logicScenario').value.trim();
+      const prompt = document.getElementById('logicPrompt').value.trim();
+      const answer = document.getElementById('logicAnswerInput').value.trim();
+      if (!title || !scenario || !prompt || !answer) {
+        alert('Please complete the puzzle title, scenario, question, and answer.');
+        return;
+      }
+      data.logicPuzzles.push({ id: uid(), title, scenario, prompt, answer, userInput: '', revealed: false });
+      saveData();
+      renderLogicBox();
+    }
+
+    function editLogicPuzzle(id) {
+      const item = data.logicPuzzles.find(p => p.id === id);
+      const newTitle = prompt('Edit title:', item.title);
+      if (newTitle === null) return;
+      const newScenario = prompt('Edit scenario:', item.scenario);
+      if (newScenario === null) return;
+      const newPrompt = prompt('Edit question:', item.prompt);
+      if (newPrompt === null) return;
+      const newAnswer = prompt('Edit answer:', item.answer);
+      if (newAnswer === null) return;
+      data.logicPuzzles = data.logicPuzzles.map(p => p.id === id ? { ...p, title: newTitle, scenario: newScenario, prompt: newPrompt, answer: newAnswer } : p);
+      saveData();
+      renderLogicBox();
+    }
+
+    function deleteLogicPuzzle(id) {
+      data.logicPuzzles = data.logicPuzzles.filter(item => item.id !== id);
+      saveData();
+      renderLogicBox();
+    }
+
+    function renderWorksBox() {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Add a work</div>
+          <label>Title</label>
+          <input type="text" id="workTitle" placeholder="Title of the work" />
+          <label style="display:block; margin-top:10px;">Work content</label>
+          <textarea id="workText" placeholder="Write inside the rectangle text box..."></textarea>
+          <div class="paper-actions" style="margin-top:14px;">
+            <button class="btn" onclick="addWork()">Save work</button>
+          </div>
+        </div>
+        <div class="works-list" id="worksList"></div>
+      `;
+      drawWorks();
+    }
+
+    function drawWorks() {
+      const list = document.getElementById('worksList');
+      if (!data.works.length) {
+        list.innerHTML = '<div class="empty">No works saved yet.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.works.forEach(work => {
+        const comments = work.comments || [];
+        const div = document.createElement('div');
+        div.className = 'work-item';
+        div.innerHTML = `
+          <h4>${escapeHtml(work.title || 'Untitled work')}</h4>
+          <textarea id="work-content-${work.id}">${escapeTextarea(work.content || '')}</textarea>
+          <div class="item-actions">
+            <button class="btn" onclick="saveWork('${work.id}')">Save</button>
+            <button class="btn danger" onclick="deleteWork('${work.id}')">Delete</button>
+          </div>
+          <div class="section-card" style="margin-top:12px;">
+            <div class="section-title">Comments</div>
+            <textarea id="work-comment-${work.id}" placeholder="Add a comment..."></textarea>
+            <div class="paper-actions" style="margin-top:10px;">
+              <button class="btn secondary" onclick="addWorkComment('${work.id}')">Save comment</button>
+            </div>
+            <div class="comment-list">
+              ${comments.length ? comments.map(comment => `
+                <div class="comment-item">
+                  <div>${escapeHtml(comment.text)}</div>
+                  <div class="item-actions" style="margin-top:8px;">
+                    <button class="btn danger" onclick="deleteWorkComment('${work.id}','${comment.id}')">Delete comment</button>
+                  </div>
+                </div>
+              `).join('') : '<div class="empty">No comments yet.</div>'}
+            </div>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function addWork() {
+      const title = document.getElementById('workTitle').value.trim();
+      const content = document.getElementById('workText').value.trim();
+      if (!title && !content) return;
+      data.works.unshift({ id: uid(), title: title || 'Untitled work', content, comments: [] });
+      saveData();
+      renderWorksBox();
+    }
+
+    function saveWork(id) {
+      const content = document.getElementById(`work-content-${id}`).value;
+      data.works = data.works.map(work => work.id === id ? { ...work, content } : work);
+      saveData();
+      drawWorks();
+    }
+
+    function deleteWork(id) {
+      data.works = data.works.filter(work => work.id !== id);
+      saveData();
+      drawWorks();
+    }
+
+    function addWorkComment(id) {
+      const el = document.getElementById(`work-comment-${id}`);
+      const text = el.value.trim();
+      if (!text) return;
+      data.works = data.works.map(work => work.id === id ? { ...work, comments: [...(work.comments || []), { id: uid(), text }] } : work);
+      saveData();
+      drawWorks();
+    }
+
+    function deleteWorkComment(workId, commentId) {
+      data.works = data.works.map(work => work.id === workId ? { ...work, comments: (work.comments || []).filter(c => c.id !== commentId) } : work);
+      saveData();
+      drawWorks();
+    }
+
+    function renderCasesBox() {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Add case digest entry</div>
+          <label>Case title</label>
+          <input type="text" id="caseTitle" placeholder="Name of the case or file" />
+          <label style="display:block; margin-top:10px;">Upload PDF</label>
+          <input type="file" id="casePdf" accept="application/pdf" />
+          <div class="paper-actions" style="margin-top:14px;">
+            <button class="btn" onclick="addCaseDigest()">Add PDF case</button>
+          </div>
+          <p class="hint">PDF files are stored locally in this browser using file metadata and a temporary object link.</p>
+        </div>
+        <div class="case-list" id="caseList"></div>
+      `;
+      drawCases();
+    }
+
+    function drawCases() {
+      const list = document.getElementById('caseList');
+      if (!data.cases.length) {
+        list.innerHTML = '<div class="empty">No case digest files yet.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.cases.forEach(item => {
+        const answers = item.answers || [];
+        const div = document.createElement('div');
+        div.className = 'case-item';
+        div.innerHTML = `
+          <h4>${escapeHtml(item.title || item.fileName || 'PDF Case')}</h4>
+          <div class="muted">PDF file: ${escapeHtml(item.fileName || 'No file name')}</div>
+          ${item.fileUrl ? `<div class="paper-actions" style="margin-top:10px;"><a class="btn secondary" href="${item.fileUrl}" target="_blank" rel="noopener">Open PDF</a></div>` : ''}
+          <div class="section-card" style="margin-top:12px;">
+            <div class="section-title">Answers</div>
+            <textarea id="case-answer-${item.id}" placeholder="Write an answer for this PDF..."></textarea>
+            <div class="paper-actions" style="margin-top:10px;">
+              <button class="btn" onclick="addCaseAnswer('${item.id}')">Add answer</button>
+              <button class="btn danger" onclick="deleteCaseDigest('${item.id}')">Delete case</button>
+            </div>
+            <div class="comment-list">
+              ${answers.length ? answers.map(answer => `
+                <div class="comment-item">
+                  <textarea id="case-answer-item-${answer.id}">${escapeTextarea(answer.text)}</textarea>
+                  <div class="item-actions" style="margin-top:10px;">
+                    <button class="btn" onclick="saveCaseAnswer('${item.id}','${answer.id}')">Save</button>
+                    <button class="btn danger" onclick="deleteCaseAnswer('${item.id}','${answer.id}')">Delete</button>
+                  </div>
+                </div>
+              `).join('') : '<div class="empty">No answers yet.</div>'}
+            </div>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function addCaseDigest() {
+      const title = document.getElementById('caseTitle').value.trim();
+      const fileInput = document.getElementById('casePdf');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please upload a PDF file.');
+        return;
+      }
+      const fileUrl = URL.createObjectURL(file);
+      data.cases.unshift({ id: uid(), title: title || file.name, fileName: file.name, fileUrl, answers: [] });
+      saveData();
+      renderCasesBox();
+    }
+
+    function addCaseAnswer(caseId) {
+      const input = document.getElementById(`case-answer-${caseId}`);
+      const text = input.value.trim();
+      if (!text) return;
+      data.cases = data.cases.map(item => item.id === caseId ? { ...item, answers: [...(item.answers || []), { id: uid(), text }] } : item);
+      saveData();
+      drawCases();
+    }
+
+    function saveCaseAnswer(caseId, answerId) {
+      const val = document.getElementById(`case-answer-item-${answerId}`).value;
+      data.cases = data.cases.map(item => item.id === caseId ? {
+        ...item,
+        answers: item.answers.map(ans => ans.id === answerId ? { ...ans, text: val } : ans)
+      } : item);
+      saveData();
+      drawCases();
+    }
+
+    function deleteCaseAnswer(caseId, answerId) {
+      data.cases = data.cases.map(item => item.id === caseId ? {
+        ...item,
+        answers: item.answers.filter(ans => ans.id !== answerId)
+      } : item);
+      saveData();
+      drawCases();
+    }
+
+    function deleteCaseDigest(caseId) {
+      data.cases = data.cases.filter(item => item.id !== caseId);
+      saveData();
+      drawCases();
+    }
+
+    function renderStorageBox() {
+      boxModalContent.innerHTML = `
+        <div class="section-card">
+          <div class="section-title">Upload files and images</div>
+          <label>Choose file</label>
+          <input type="file" id="storageFile" multiple />
+          <div class="paper-actions" style="margin-top:14px;">
+            <button class="btn" onclick="addStorageFiles()">Save uploads</button>
+          </div>
+          <p class="hint">Files are stored locally in this browser session with previews for images when possible.</p>
+        </div>
+        <div class="upload-list" id="storageList"></div>
+      `;
+      drawStorage();
+    }
+
+    function addStorageFiles() {
+      const input = document.getElementById('storageFile');
+      const files = Array.from(input.files || []);
+      if (!files.length) return;
+      const newItems = files.map(file => ({
+        id: uid(),
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: URL.createObjectURL(file)
+      }));
+      data.storageUploads.unshift(...newItems);
+      saveData();
+      drawStorage();
+      input.value = '';
+    }
+
+    function drawStorage() {
+      const list = document.getElementById('storageList');
+      if (!data.storageUploads.length) {
+        list.innerHTML = '<div class="empty">No uploads yet.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.storageUploads.forEach(item => {
+        const isImage = item.type && item.type.startsWith('image/');
+        const div = document.createElement('div');
+        div.className = 'upload-item';
+        div.innerHTML = `
+          <div><strong>${escapeHtml(item.name)}</strong></div>
+          <div class="muted">${escapeHtml(item.type || 'Unknown file')} • ${formatBytes(item.size || 0)}</div>
+          <div class="upload-preview">
+            ${isImage ? `<div class="thumb"><img src="${item.url}" alt="${escapeAttr(item.name)}" /></div>` : ''}
+            <div class="paper-actions">
+              <a class="btn secondary" href="${item.url}" target="_blank" rel="noopener">Open file</a>
+              <button class="btn danger" onclick="deleteStorageFile('${item.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function deleteStorageFile(id) {
+      data.storageUploads = data.storageUploads.filter(item => item.id !== id);
+      saveData();
+      drawStorage();
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(text) {
+      return escapeHtml(text).replace(/`/g, '&#096;');
+    }
+
+    function escapeTextarea(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    renderShell();
   </script>
 </body>
 </html>
