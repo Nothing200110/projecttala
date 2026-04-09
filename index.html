@@ -1483,7 +1483,6 @@
         <div class="logic-list" id="logicList"></div>
       `;
       drawLogicPuzzles();
-      attachRunawayButtons();
     }
 
     function drawLogicPuzzles() {
@@ -1502,8 +1501,8 @@
           <p style="margin-top:10px;"><strong>Question:</strong> ${escapeHtml(item.prompt)}</p>
           <label style="display:block; margin-top:12px;">Your answer</label>
           <textarea id="logic-user-${item.id}" placeholder="Type your answer here...">${escapeTextarea(item.userInput || '')}</textarea>
-          <div class="item-actions" style="position:relative; min-height:54px;">
-            <button class="btn logic-done-btn" data-logic-btn="${item.id}" onclick="submitLogicAnswer('${item.id}')">Done</button>
+          <div class="item-actions">
+            <button class="btn" onclick="submitLogicAnswer('${item.id}')">Done</button>
             <button class="btn secondary" onclick="editLogicPuzzle('${item.id}')">Quick edit</button>
             <button class="btn danger" onclick="deleteLogicPuzzle('${item.id}')">Delete</button>
           </div>
@@ -1515,33 +1514,11 @@
       });
     }
 
-    function attachRunawayButtons() {
-      document.querySelectorAll('.logic-done-btn').forEach(btn => {
-        btn.addEventListener('mouseenter', logicRunawayHandler);
-        btn.addEventListener('mousemove', logicRunawayHandler);
-      });
-    }
-
-    function logicRunawayHandler(e) {
-      const btn = e.currentTarget;
-      const id = btn.getAttribute('data-logic-btn');
-      const textarea = document.getElementById(`logic-user-${id}`);
-      if (!textarea || !textarea.value.trim()) return;
-      const parent = btn.parentElement;
-      parent.style.position = 'relative';
-      btn.style.position = 'absolute';
-      const maxX = Math.max(parent.clientWidth - btn.offsetWidth - 4, 10);
-      const maxY = Math.max(parent.clientHeight - btn.offsetHeight - 4, 10);
-      btn.style.left = Math.floor(Math.random() * maxX) + 'px';
-      btn.style.top = Math.floor(Math.random() * maxY) + 'px';
-    }
-
     function submitLogicAnswer(id) {
       const input = document.getElementById(`logic-user-${id}`).value;
       data.logicPuzzles = data.logicPuzzles.map(item => item.id === id ? { ...item, userInput: input, revealed: true } : item);
       saveData();
       drawLogicPuzzles();
-      attachRunawayButtons();
     }
 
     function addLogicPuzzle() {
